@@ -122,8 +122,12 @@ function Get-LAConnected {
         if ($AzureAnd365 -or $AzureOnly -or $Azure) {
             $json = Get-ChildItem -Recurse -Include '*@*.json' -Path 'C:\ps\creds'
             if ($json) {
+                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
                 Write-Output "Select the Azure User Name and Click `"OK`" in lower right-hand corner"
-                Write-Output "Otherwise click `"Cancel`""
+                Write-Output "Otherwise, if this is the first time using this Azure User Name click `"Cancel`""
+                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
                 $json = $json | select name | Out-GridView -PassThru
             }
             if (!($json)) {
@@ -134,7 +138,11 @@ function Get-LAConnected {
             else {
                 Import-AzureRmContext -Path ($KeyPath + $json.name)
             }
+            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
             Write-Output "Select Subscription and Click "OK" in lower right-hand corner"
+            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
             $subscription = Get-AzureRmSubscription | Out-GridView -PassThru | Select id
             Select-AzureRmSubscription -SubscriptionId $subscription.id
         }
