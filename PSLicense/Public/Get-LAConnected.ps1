@@ -20,6 +20,9 @@ function Get-LAConnected {
         [switch] $All365,
                 
         [Parameter(Mandatory = $false)]
+        [switch] $Azure,    
+
+        [Parameter(Mandatory = $false)]
         [switch] $AzureOnly,        
                  
         [Parameter(Mandatory = $false)]
@@ -43,7 +46,9 @@ function Get-LAConnected {
     )
 
     Begin {
-        
+        if ($Tenant -match 'onmicrosoft') {
+            $Tenant = $Tenant.Split(".")[0]
+        }
     }
     Process {
 
@@ -84,17 +89,14 @@ function Get-LAConnected {
             Connect-MsolService -Credential $Credential
 
             # Exchange Online
-            $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell -Credential $Credential -Authentication Basic -AllowRedirection -Verbose
-            Export-PSSession $Session -OutputModule ExchangeOnline -Force
-            Import-Module ExchangeOnline -Scope Global
-
+            $exchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell -Credential $Credential -Authentication Basic -AllowRedirection -Verbose
+            Import-Module (Import-PSSession $exchangeSession -AllowClobber) -Global | Out-Null
         }
 
         # Security and Compliance Center
         if ($Compliance -or $All365) {
             $ccSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.compliance.protection.outlook.com/powershell-liveid/ -Credential $credential -Authentication Basic -AllowRedirection
-            Export-PSSession $ccSession -OutputModule ComplianceCenter -Force
-            Import-Module ComplianceCenter -Scope Global
+            Import-Module (Import-PSSession $ccSession -AllowClobber) -Global | Out-Null
         }
 
         if ($ComplianceLegacy) {
@@ -106,31 +108,35 @@ function Get-LAConnected {
         
         # Skype Online
         if ($Skype -or $All365) {
-            Import-Module SkypeOnlineConnector
             $sfboSession = New-CsOnlineSession -Credential $Credential
-            Import-PSSession $sfboSession
+            Import-Module (Import-PSSession $sfboSession -AllowClobber) -Global | Out-Null
         }
 
         # Sharepoint Online
         if ($Sharepoint -or $All365) {
             Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking -Verbose
             Connect-SPOService -Url ("https://" + $Tenant + "-admin.sharepoint.com") -credential $Credential
-
         }
 
         # Azure
-        if ($AzureAnd365 -or $AzureOnly) {
-            if (!(Test-Path ($KeyPath + $Tenant + ".json"))) {
-                Login-AzureRmAccount
-                Save-AzureRmContext -Path ($KeyPath + $Tenant + ".json")
-                Import-AzureRmContext -Path ($KeyPath + $Tenant + ".json")
+        if ($AzureAnd365 -or $AzureOnly -or $Azure) {
+            $json = Get-ChildItem -Recurse -Include '*@*.json' -Path 'c:\ps'
+            if ($json) {
+                Write-Output "Select the Azure User Name and Click `"OK`" in lower right-hand corner"
+                Write-Output "Otherwise click `"Cancel`""
+                $json = $json | select name | Out-GridView -PassThru
+            }
+            if (!($json)) {
+                $azlogin = Login-AzureRmAccount
+                Save-AzureRmContext -Path ($KeyPath + ($azlogin.Context.Account.Id) + ".json")
+                Import-AzureRmContext -Path ($KeyPath + ($azlogin.Context.Account.Id) + ".json")
             }
             else {
-                Import-AzureRmContext -Path ($KeyPath + $Tenant + ".json")
+                Import-AzureRmContext -Path ($KeyPath + $json.name)
             }
             Write-Output "Select Subscription and Click "OK" in lower right-hand corner"
             $subscription = Get-AzureRmSubscription | Out-GridView -PassThru | Select id
-            Select-AzureRmSubscription  -SubscriptionId $subscription.id
+            Select-AzureRmSubscription -SubscriptionId $subscription.id
         }
 
         # Azure AD (Preview)
