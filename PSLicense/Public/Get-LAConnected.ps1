@@ -120,7 +120,7 @@ function Get-LAConnected {
 
         # Azure
         if ($AzureAnd365 -or $AzureOnly -or $Azure) {
-            $json = Get-ChildItem -Recurse -Include '*@*.json' -Path 'c:\ps'
+            $json = Get-ChildItem -Recurse -Include '*@*.json' -Path 'C:\ps\creds'
             if ($json) {
                 Write-Output "Select the Azure User Name and Click `"OK`" in lower right-hand corner"
                 Write-Output "Otherwise click `"Cancel`""
