@@ -232,19 +232,19 @@
 
         # Hashtable to match Options to their SKUs
         $hash4sku = @{ 
-            "Teams"                 = "$SkuE3";
-            "Sway"                  = "$SkuE3";
-            "Yammer"                = "$SkuE3";
-            "Flow"                  = "$SkuE3";
-            "OfficePro"             = "$SkuE3";
-            "StaffHub"              = "$SkuE3";
-            "Planner"               = "$SkuE3";
-            "PowerApps"             = "$SkuE3";
-            "AzureRMS"              = "$SkuE3";
-            "OfficeOnline"          = "$SkuE3";
-            "SharePoint"            = "$SkuE3";
-            "Skype"                 = "$SkuE3";
-            "Exchange"              = "$SkuE3";
+            "Teams"                 = "$PrimarySku";
+            "Sway"                  = "$PrimarySku";
+            "Yammer"                = "$PrimarySku";
+            "Flow"                  = "$PrimarySku";
+            "OfficePro"             = "$PrimarySku";
+            "StaffHub"              = "$PrimarySku";
+            "Planner"               = "$PrimarySku";
+            "PowerApps"             = "$PrimarySku";
+            "AzureRMS"              = "$PrimarySku";
+            "OfficeOnline"          = "$PrimarySku";
+            "SharePoint"            = "$PrimarySku";
+            "Skype"                 = "$PrimarySku";
+            "Exchange"              = "$PrimarySku";
             "Intune"                = "$SkuEMS";
             "Azure_Info_Protection" = "$SkuEMS";
             "Azure_Rights_Mgt"      = "$SkuEMS";
