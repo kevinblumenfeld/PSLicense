@@ -1,5 +1,5 @@
 # PSLicense
-Reporting on and setting Office 365 Licensing
+Reporting on and setting Office 365 licenses
 
 use Help Set-LACloudLicense -full
 
