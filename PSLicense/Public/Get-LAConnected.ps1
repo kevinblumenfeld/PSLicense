@@ -15,7 +15,7 @@ function Get-LAConnected {
    Locally saves and encrypts to a file the username and password.
    The encrypted file...
       
-   1. can only be used by on the computer and on the user's profile from which it was created.
+   1. can only be used on the computer and within the user's profile from which it was created.
    2. is the same .txt for all the Office 365 Services.
    3. for Azure is seperate and is a .json file.
    
@@ -176,8 +176,8 @@ function Get-LAConnected {
         }
 
         if ($ComplianceLegacy) {
-            $UserCredential = Get-Credential 
-            $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.compliance.protection.outlook.com/powershell-liveid -Credential $UserCredential -Authentication Basic -AllowRedirection 
+            # $UserCredential = Get-Credential 
+            $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://ps.compliance.protection.outlook.com/powershell-liveid -Credential $Credential -Authentication Basic -AllowRedirection 
             Import-PSSession $Session -AllowClobber -DisableNameChecking 
             $Host.UI.RawUI.WindowTitle = $UserCredential.UserName + " (Office 365 Security & Compliance Center)"
         }
