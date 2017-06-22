@@ -17,7 +17,7 @@ function Get-LAConnected {
       
    1. can only be used on the computer and within the user's profile from which it was created.
    2. is the same .txt for all the Office 365 Services.
-   3. for Azure is seperate and is a .json file.
+   3. for Azure is separate and is a .json file.
    
    If Azure or Azureonly switch is used for first time:
    
@@ -96,6 +96,9 @@ function Get-LAConnected {
         [string] $Tenant,
        
         [Parameter(Mandatory = $false)]
+        [switch] $ExchangeAndMSOL,
+                       
+        [Parameter(Mandatory = $false)]
         [switch] $All365,
                 
         [Parameter(Mandatory = $false)]
@@ -108,7 +111,7 @@ function Get-LAConnected {
         [switch] $Skype,
           
         [parameter(Mandatory = $false)]
-        [switch] $Sharepoint,
+        [switch] $SharePoint,
          
         [parameter(Mandatory = $false)]
         [switch] $Compliance,
@@ -117,7 +120,7 @@ function Get-LAConnected {
         [switch] $ComplianceLegacy,
           
         [parameter(Mandatory = $false)]
-        [switch] $AzurePreview
+        [switch] $AzureADver2
         
     )
 
@@ -128,7 +131,7 @@ function Get-LAConnected {
     }
     Process {
 
-        $RootPath = "c:\ps\"
+        $RootPath = $env:USERPROFILE + "\ps\"
         $KeyPath = $Rootpath + "creds\"
 
         # Create Directory for Transact Logs
@@ -159,13 +162,13 @@ function Get-LAConnected {
                 $Credential.UserName | Out-File "$($KeyPath)\$Tenant.ucred"
             }
         }
-        if (! $AzureOnly) {
+        if (! $AzureOnly -and $ExchangeAndMSOL) {
             # Office 365 Tenant
             Import-Module MsOnline
             Connect-MsolService -Credential $Credential
 
             # Exchange Online
-            $exchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell -Credential $Credential -Authentication Basic -AllowRedirection -Verbose
+            $exchangeSession = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell -Credential $Credential -Authentication Basic -AllowRedirection 
             Import-Module (Import-PSSession $exchangeSession -AllowClobber) -Global | Out-Null
         }
 
@@ -188,43 +191,18 @@ function Get-LAConnected {
             Import-Module (Import-PSSession $sfboSession -AllowClobber) -Global | Out-Null
         }
 
-        # Sharepoint Online
-        if ($Sharepoint -or $All365) {
-            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking -Verbose
+        # SharePoint Online
+        if ($SharePoint -or $All365) {
+            Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking 
             Connect-SPOService -Url ("https://" + $Tenant + "-admin.sharepoint.com") -credential $Credential
         }
 
         # Azure
         if ($AzureOnly -or $Azure) {
-            $json = Get-ChildItem -Recurse -Include '*@*.json' -Path 'C:\ps\creds'
-            if ($json) {
-                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-                Write-Output "Select the Azure username and Click `"OK`" in lower right-hand corner"
-                Write-Output "Otherwise, if this is the first time using this Azure username click `"Cancel`""
-                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-                Write-Host   "*********************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-                $json = $json | select name | Out-GridView -PassThru -Title "Select Azure username or click Cancel to use another"
-            }
-            if (!($json)) {
-                $azlogin = Login-AzureRmAccount
-                Save-AzureRmContext -Path ($KeyPath + ($azlogin.Context.Account.Id) + ".json")
-                Import-AzureRmContext -Path ($KeyPath + ($azlogin.Context.Account.Id) + ".json")
-            }
-            else {
-                Import-AzureRmContext -Path ($KeyPath + $json.name)
-            }
-            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-            Write-Output "Select Subscription and Click "OK" in lower right-hand corner"
-            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-            Write-Host   "*************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
-            $subscription = Get-AzureRmSubscription | Out-GridView -PassThru -Title "Choose Azure Subscription"| Select id
-            Select-AzureRmSubscription -SubscriptionId $subscription.id
+            Get-LAAzureConnected
         }
-
         # Azure AD (Preview)
-        If ($AzurePreview) {
+        If ($AzureADver2) {
             install-module azureadpreview
             import-module azureadpreview
             Connect-AzureAD -Credential $Credential
@@ -233,4 +211,44 @@ function Get-LAConnected {
     }
     End {
     } 
+}
+
+function Get-LAAzureConnected {
+    $json = Get-ChildItem -Recurse -Include '*@*.json' -Path $KeyPath
+    if ($json) {
+        Write-Host   "************************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+        Write-Host   "************************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+        Write-Output "   Select the Azure username and Click `"OK`" in lower right-hand corner"
+        Write-Output "   Otherwise, if this is the first time using this Azure username click `"Cancel`""
+        Write-Host   "************************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+        Write-Host   "************************************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+        $json = $json | select name | Out-GridView -PassThru -Title "Select Azure username or click Cancel to use another"
+    }
+    if (!($json)) {
+        $azlogin = Login-AzureRmAccount
+        Save-AzureRmContext -Path ($KeyPath + ($azlogin.Context.Account.Id) + ".json")
+        Import-AzureRmContext -Path ($KeyPath + ($azlogin.Context.Account.Id) + ".json")
+    }
+    else {
+        Import-AzureRmContext -Path ($KeyPath + $json.name)
+    }
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    Write-Output "   Select Subscription and Click `"OK`" in lower right-hand corner"
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    $subscription = Get-AzureRmSubscription | Out-GridView -PassThru -Title "Choose Azure Subscription"| Select id
+    Try {
+        Select-AzureRmSubscription -SubscriptionId $subscription.id -ErrorAction Stop
+    }
+    Catch {
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    Write-Output "   Azure credentials have expired. Authenticate again please."
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+    Write-Host   "*********************************************************************" -foregroundcolor "magenta" -backgroundcolor "yellow"
+        
+        Remove-Item ($KeyPath + $json.name)
+        Get-LAAzureConnected
+    }
 }
