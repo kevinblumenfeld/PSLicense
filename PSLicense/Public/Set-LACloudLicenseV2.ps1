@@ -1,181 +1,37 @@
-﻿function Set-LACloudLicense {
-    <#
-    .SYNOPSIS 
-        The user of this script can perform one or more of the following tasks against one or more Office 365 users:
-
-        1.  Add a full license (SKU) with all options (ex. E3)
-        2.  Add between one and three options (ex. Teams). If the user does not currently have the SKU assigned, it 
-            will be added with only the option(s).
-        3.  Remove between one and three option(s)
-        4.  Automatically selects a "Base" set of options - Defined by I.T.
-            This occurs when no options are selected at all - similar to steps below.  Also, see examples in the EXAMPLE section below
-              a.  Remove: SKU: Exchange Online (Plan2)
-              b.  Remove: SKU: Office 365 Enterprise E1
-              c.  Remove: SKU: Office 365 Enterprise E2
-              d.  Remove: SKU: SharePoint Online (Plan 2)
-              e.  Add:    SKU: Office 365 Enterprise E3 (sans the option(s): 'OfficeProPlus')
-        5.  Remove one or more SKU's
-
-        =============
-        Prerequisites
-        =============
-        
-        1.  Download and install the Microsoft Online Services Sign-In Assistant
-              https://download.microsoft.com/download/5/0/1/5017D39B-8E29-48C8-91A8-8D0E4968E6D4/en/msoidcli_64.msi
-
-        2.  If not running Windows 10 or higher, Install WMF 5.1 or higher
-              https://www.microsoft.com/en-us/download/details.aspx?id=54616 
-        
-        3.  Install the Windows Azure Active Directory Module for Windows PowerShell. From an elevated PowerShell prompt run
-              Install-Module -Name MSOnline
-        
-        4.  From an elevated PowerShell prompt run:
-              Set-ExecutionPolicy RemoteSigned -Force
-        
-        5.  The script files provided (including the folder they came in) must be copied to "C:\Program Files\WindowsPowerShell\Modules".
-              Alternatively, the folder and files can be copied to any folder listed when executing, $env:PSModulepath -split ";" from PS.
-        
-        6.  To begin using the script(s), from an elevated PowerShell prompt run: 
-              Import-Module License365
-
-        7.  If not already connected to Office 365 from an elevated PowerShell prompt run (you will be prompted for appropriate credentials):
-              Connect-Office365
-            
-    .DESCRIPTION
-        Summary
-                Use this function to license users for Office 365.  
-                UserPrincipalName(s) are passed with a variable from the pipeline "|" to the function Set-LaCloudLicense.
-                Drop the entire module (including folder structure) in any path found when running: PS C:\> $env:PSModulePath
-        
-        There are two primary methods to add a list of UPN(s) to a variable
-
-        1.  By using a CSV (Example: $users = Import-CSV .\anylistofupns.csv)
-        2.  By using Get-MsolUser and filtered parameters
-              a.  Example: $users = Get-MsolUser -Department "IT Department"
-              b.  Example: $users = Get-MsolUser -SearchString user1
-              c.  For a full list of parameters on which to filter, execute this command: help Get-MsolUser -Full
-
-        If a CSV is used
-        
-        1.  Must have a column populated with UPN(s)
-        2.  The column of UPN(s) must have a header named, UserPrincipalName
-        3.  The CSV may contain other columns as they will be ignored
-
-        Example of CSV
-        ------- -- ---
-
-        UserPrincipalName
-        user1@contoso.com
-        user2@contoso.com
-        user3@contoso.com
-        user4@contoso.com
-
-        Mandatory parameters are
-            Users (ValueFromPipeline)
-                
-        Non-Mandatory parameters are: 
-            E3, EMS, RemoveSKU, AddOption, AddOption2, AddOption3, RemoveOption, RemoveOption2, RemoveOption3, PowerAppsandLogicFlows, PowerBI, PowerBIPro, PowerBIFree, RMSAdhoc
-
-    .EXAMPLE
-        Adds the base set of options (predefined by I.T.) to a list of Office 365 user(s) from a CSV of UserPrincipalName(s)
-
-        Import-CSV .\UserList.CSV | Set-LaCloudLicense
-
-    .EXAMPLE
-        Adds the base set of options to a list of Office 365 user(s) from a filtered list of Get-MsolUser
-        
-        Get-MsolUser -Department "Human Resources" | Set-LaCloudLicense
-
-    .EXAMPLE
-        Adds the SKUs E3 and EMS (with all options) to a list of Office 365 user(s) from a CSV of UserPrincipalName(s)
-        
-        Import-CSV .\UserList.CSV | Set-LaCloudLicense -E3 -EMS
-
-    .EXAMPLE
-        Adds the SKUs E3 and EMS (both, with all options) then removes the option "Flow" from a list of Office 365 user(s)
-        
-        Import-CSV .\UserList.CSV | Set-LaCloudLicense -E3 -EMS -RemoveOption Flow
-
-    .EXAMPLE
-        Adds the 3 options "Microsoft Teams, Sway & Flow" to a list of Office 365 user(s) from a CSV of UserPrincipalName(s)
-
-        Import-CSV .\UserList.CSV | Set-LaCloudLicense -AddOption Teams -AddOption2 Sway -AddOption3 Flow
-
-    .EXAMPLE
-        Removes the option "Microsoft Sway" from a list of Office 365 user(s) from a CSV of UserPrincipalName(s)
-        
-        Import-CSV .\UserList.CSV | Set-LaCloudLicense -RemoveOption Sway
-   
-    .EXAMPLE
-        Removes the SKUs E3 and EMS from a list of Office 365 user(s) from a CSV of UserPrincipalName(s)
-
-        Import-CSV .\UserList.CSV | Set-LaCloudLicense -E3 -EMS -RemoveSKU
-   
-#>  
+﻿function Set-LACloudLicenseV2 {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param
     (
-        # Users to be licensed
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]] $Users,
 
-        [Parameter(Mandatory = $False)]
-        [switch] $E3,
- 
-        [parameter(Mandatory = $False)]
-        [switch] $E5,
-          
-        [parameter(Mandatory = $False)]
-        [switch] $EMS,
-         
-        [parameter(Mandatory = $False)]
-        [switch] $RemoveSKU,
- 
-        [parameter(Mandatory = $False)]
-        [ValidateSet("Teams", "Sway", "Yammer", "Flow", "OfficePro", "StaffHub", "Planner", "PowerApps", "AzureRMS", "OfficeOnline", "SharePoint", "Skype", "Exchange", "Intune", "Azure_Info_Protection", "Azure_AD_Premium", "Azure_Rights_Mgt", "Azure_MultiFactorAuth")]
-        [string] $AddOption,
-
-        [parameter(Mandatory = $False)]
-        [ValidateSet("Teams", "Sway", "Yammer", "Flow", "OfficePro", "StaffHub", "Planner", "PowerApps", "AzureRMS", "OfficeOnline", "SharePoint", "Skype", "Exchange", "Intune", "Azure_Info_Protection", "Azure_AD_Premium", "Azure_Rights_Mgt", "Azure_MultiFactorAuth")]
-        [string] $AddOption2,
-         
-        [parameter(Mandatory = $False)]
-        [ValidateSet("Teams", "Sway", "Yammer", "Flow", "OfficePro", "StaffHub", "Planner", "PowerApps", "AzureRMS", "OfficeOnline", "SharePoint", "Skype", "Exchange", "Intune", "Azure_Info_Protection", "Azure_AD_Premium", "Azure_Rights_Mgt", "Azure_MultiFactorAuth")]
-        [string] $AddOption3,
- 
-        [parameter(Mandatory = $False)]
-        [ValidateSet("Teams", "Sway", "Yammer", "Flow", "OfficePro", "StaffHub", "Planner", "PowerApps", "AzureRMS", "OfficeOnline", "SharePoint", "Skype", "Exchange", "Intune", "Azure_Info_Protection", "Azure_AD_Premium", "Azure_Rights_Mgt", "Azure_MultiFactorAuth")]
-        [string] $RemoveOption,
-
-        [parameter(Mandatory = $False)]
-        [ValidateSet("Teams", "Sway", "Yammer", "Flow", "OfficePro", "StaffHub", "Planner", "PowerApps", "AzureRMS", "OfficeOnline", "SharePoint", "Skype", "Exchange", "Intune", "Azure_Info_Protection", "Azure_AD_Premium", "Azure_Rights_Mgt", "Azure_MultiFactorAuth")]
-        [string] $RemoveOption2,
-
-        [parameter(Mandatory = $False)]
-        [ValidateSet("Teams", "Sway", "Yammer", "Flow", "OfficePro", "StaffHub", "Planner", "PowerApps", "AzureRMS", "OfficeOnline", "SharePoint", "Skype", "Exchange", "Intune", "Azure_Info_Protection", "Azure_AD_Premium", "Azure_Rights_Mgt", "Azure_MultiFactorAuth")]
-        [string] $RemoveOption3,
-  
-        [Parameter(Mandatory = $False)]
-        [switch] $PowerAppsandLogicFlows,
- 
-        [parameter(Mandatory = $False)]
-        [switch] $PowerBI,
-         
-        [parameter(Mandatory = $False)]
-        [switch] $PowerBIPro,
-
-        [parameter(Mandatory = $False)]
-        [switch] $PowerBIFree,
-                 
-        [parameter(Mandatory = $False)]
-        [switch] $RMSAdhoc,
-
-        [Parameter()]
-        [string] $ErrorLog = $LogPreference
     )
+
+    DynamicParam {          
+        #Create the RuntimeDefinedParameterDictionary
+        # $DynamicParameters  = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
+        $DynamicParameters = @(
+            @{
+                Name             = 'AddSku'
+                Type             = [array]
+                Position         = 0
+                Mandatory        = $false
+                ValidateSet      = (Get-AzureADSubscribedSku).SkuPartNumber
+                ParameterSetName = 'ssCollection1'
+            },
+            @{
+                Name             = 'AddService'
+                Type             = [array]
+                Position         = 1
+                Mandatory        = $false
+                ValidateSet      = (Get-AzureADSubscribedSku).serviceplans.serviceplanname
+                ParameterSetName = 'ssCollection1'
+            }
+        )
+        $DynamicParameters | ForEach-Object {New-Object PSObject -Property $_} | New-DynamicParameter
+    }
 
     # Function's Begin Block
     Begin {
+        New-DynamicParameter -CreateVariables -BoundParameters $PSBoundParameters
 
         # Zero Variables and Define Arrays
         $BaseDisabledOptions = @()
