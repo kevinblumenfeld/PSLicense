@@ -201,6 +201,6 @@ function Get-CloudSkuTable {
         }              
     }
     End {
-        $resultArray 
+        [array]$resultArray 
     }
 }
