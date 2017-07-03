@@ -182,22 +182,17 @@ function Get-CloudSkuTable {
  
         # Loop through all License types found in the tenant 
         foreach ($license in $licenses) {     
-
             foreach ($row in $($license.ServicePlans.serviceplanname)) { 
-                Write-Host "ROW: $row"
                 $table = [ordered]@{}
-
                 if ($sku[$($license.SkuPartNumber)]) {
                     $table['Sku'] = $sku[$license.SkuPartNumber]
                 }
-
                 else {
                     $table['Sku'] = $license.SkuPartNumber
                 }
                 if ($plans[$row]) {
                     $table['Plan'] = $plans[$row]
                 }
-
                 else {
                     $table['Plan'] = $row
                 }
@@ -206,7 +201,6 @@ function Get-CloudSkuTable {
         }              
     }
     End {
-        $resultArray | Out-GridView
+        $resultArray 
     }
 }
-# dotsource

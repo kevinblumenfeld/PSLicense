@@ -6,8 +6,6 @@
     )
 
     DynamicParam {          
-        #Create the RuntimeDefinedParameterDictionary
-        # $DynamicParameters  = New-Object System.Management.Automation.RuntimeDefinedParameterDictionary
         $DynamicParameters = @(
             @{
                 Name             = 'AddSku'
@@ -22,7 +20,7 @@
                 Type             = [array]
                 Position         = 1
                 Mandatory        = $false
-                ValidateSet      = (Get-AzureADSubscribedSku).serviceplans.serviceplanname
+                ValidateSet      = (. Get-CloudSkuTable) | Select -ExpandProperty sku | Select -ExpandProperty plan
                 ParameterSetName = 'ssCollection1'
             }
         )
@@ -42,25 +40,25 @@
         $user = @()
 
         # Assign Tenant and Location to a variable
-        $Tenant = (Get-MsolAccountSku)[0].accountname
+        $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$True"}).name.split(".")[0]
         $Location = "US"
   
         # Assign each AccountSkuID to a variable
-        $SkuE5 = ($Tenant + ':ENTERPRISEPREMIUM')
-        $SkuE4 = ($Tenant + ':ENTERPRISEWITHSCAL')
-        $SkuE3 = ($Tenant + ':ENTERPRISEPACK')
-        $SkuE2 = ($Tenant + ':STANDARDWOFFPACK')
-        $SkuE1 = ($Tenant + ':STANDARDPACK')
-        $SkuEO2 = ($Tenant + ':EXCHANGEENTERPRISE')
-        $SkuEMS = ($Tenant + ':EMS')
-        $SkuCSP = ($Tenant + ':SPE_E3')
-        $SkuMBC = ($Tenant + ':MICROSOFT_BUSINESS_CENTER')
-        $SkuShareEnt = ($Tenant + ':SHAREPOINTENTERPRISE')        
-        $SkuPowerApps = ($Tenant + ':POWERAPPS_INDIVIDUAL_USER')
-        $SkuPowerBI = ($Tenant + ':POWER_BI_INDIVIDUAL_USER')        
-        $SkuPowerBIPro = ($Tenant + ':POWER_BI_PRO')
-        $SkuPowerBIFree = ($Tenant + ':POWER_BI_STANDARD')        
-        $SkuRMSAdhoc = ($Tenant + ':RIGHTSMANAGEMENT_ADHOC')
+            $SkuE5 = ($Tenant + ':ENTERPRISEPREMIUM')
+            $SkuE4 = ($Tenant + ':ENTERPRISEWITHSCAL')
+            $SkuE3 = ($Tenant + ':ENTERPRISEPACK')
+            $SkuE2 = ($Tenant + ':STANDARDWOFFPACK')
+            $SkuE1 = ($Tenant + ':STANDARDPACK')
+            $SkuEO2 = ($Tenant + ':EXCHANGEENTERPRISE')
+            $SkuEMS = ($Tenant + ':EMS')
+            $SkuCSP = ($Tenant + ':SPE_E3')
+            $SkuMBC = ($Tenant + ':MICROSOFT_BUSINESS_CENTER')
+            $SkuShareEnt = ($Tenant + ':SHAREPOINTENTERPRISE')        
+            $SkuPowerApps = ($Tenant + ':POWERAPPS_INDIVIDUAL_USER')
+            $SkuPowerBI = ($Tenant + ':POWER_BI_INDIVIDUAL_USER')        
+            $SkuPowerBIPro = ($Tenant + ':POWER_BI_PRO')
+            $SkuPowerBIFree = ($Tenant + ':POWER_BI_STANDARD')        
+            $SkuRMSAdhoc = ($Tenant + ':RIGHTSMANAGEMENT_ADHOC')
 
         # Set Base Options for SKU    
         # $BaseDisabledOptions = 'OFFICESUBSCRIPTION'

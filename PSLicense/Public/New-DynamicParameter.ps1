@@ -594,10 +594,10 @@ Function New-DynamicParameter {
             Write-Debug 'Getting unbound parameters list'
             $UnboundParameters = (Get-Command -Name ($PSCmdlet.MyInvocation.InvocationName)).Parameters.GetEnumerator()  |
                 # Find parameters that are belong to the current parameter set
-            Where-Object { $_.Value.ParameterSets.Keys -contains $PsCmdlet.ParameterSetName } |
+            Where-Object { $_.Value.ParameterSets.Keys -contains $PsCmdlet } |
                 Select-Object -ExpandProperty Key |
                 # Find unbound parameters in the current parameter set
-												Where-Object { $PSBoundParameters.Keys -notcontains $_ }
+					Where-Object { $PSBoundParameters.Keys -notcontains $_ }
 
             # Even if parameter is not bound, corresponding variable is created with parameter's default value (if specified)
             Write-Debug 'Trying to get variables with default parameter value and create a new bound parameter''s'
