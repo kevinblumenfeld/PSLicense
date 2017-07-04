@@ -26,7 +26,7 @@ function Get-CloudSkuTable {
             "DESKLESSPACK_YAMMER"                = "Office 365 Enterprise K1 with Yammer";
             "DESKLESSWOFFPACK"                   = "Office 365 Enterprise K2";
             "EMS"                                = "Enterprise Mobility + Security E3";
-            "EMSPREMIUM"                         = "EMSPREMIUM";
+            "EMSPREMIUM"                         = "Enterprise Mobility + Security E5";
             "ENTERPRISEPACK"                     = "Office 365 Enterprise E3";
             "ENTERPRISEPACK_B_PILOT"             = "ENTERPRISEPACK_B_PILOT";
             "ENTERPRISEPACK_FACULTY"             = "Office 365 Plan A3 for Faculty";
@@ -38,7 +38,7 @@ function Get-CloudSkuTable {
             "ENTERPRISEWITHSCAL_FACULTY"         = "Office 365 Education E4 for Faculty";
             "ENTERPRISEWITHSCAL_STUDENT"         = "Office 365 Education E4 for Students";
             "EXCHANGE_L_STANDARD"                = "Exchange Online (Plan 1)";
-            "EXCHANGE_S_ENTERPRISE"              = "Exchange Online Plan 2";
+            "EXCHANGE_S_ENTERPRISE"              = "Exchange Online Plan 2 S";
             "EXCHANGEENTERPRISE"                 = "Exchange Online Plan 2";
             "EXCHANGEENTERPRISE_FACULTY"         = "Exch Online Plan 2 for Faculty";
             "EXCHANGESTANDARD"                   = "Exchange Online Plan 1";
@@ -71,8 +71,8 @@ function Get-CloudSkuTable {
             "RIGHTSMANAGEMENT_STANDARD_STUDENT"  = "Information Rights Management for Students";
             "RMS_S_ENTERPRISE"                   = "Azure Active Directory Rights Management";
             "SHAREPOINTENTERPRISE"               = "SharePoint Online (Plan 2)";
-            "SHAREPOINTENTERPRISE_MIDMARKET"     = "SharePoint Online (Plan 1)";
-            "SHAREPOINTLITE"                     = "SharePoint Online (Plan 1)";
+            "SHAREPOINTENTERPRISE_MIDMARKET"     = "SharePoint Online (Plan 1) MidMarket";
+            "SHAREPOINTLITE"                     = "SharePoint Online (Plan 1) Lite";
             "SHAREPOINTSTANDARD"                 = "SharePoint Online Plan 1";
             "SHAREPOINTWAC"                      = "Office Online";
             "SPE_E3"                             = "Secure Productive Enterprise E3";
@@ -88,9 +88,9 @@ function Get-CloudSkuTable {
             "STANDARDWOFFPACKPACK_STUDENT"       = "Office 365 Plan A2 for Students";
             "STREAM"                             = "Microsoft Stream";
             "VISIOCLIENT"                        = "Visio Pro for Office 365";
-            "WACSHAREPOINTSTD"                   = "Office Online";
-            "YAMMER_ENTERPRISE"                  = "Yammer";
-            "YAMMER_MIDSIZE"                     = "Yammer"
+            "WACSHAREPOINTSTD"                   = "Office Online STD";
+            "YAMMER_ENTERPRISE"                  = "Yammer Enterprise";
+            "YAMMER_MIDSIZE"                     = "Yammer Midsize"
         } 
         $plans = @{
             "AAD_PREMIUM"                    = "Azure Active Directory Premium Plan 1";
@@ -113,10 +113,10 @@ function Get-CloudSkuTable {
             "EQUIVIO_ANALYTICS"              = "Office 365 Advanced eDiscovery";
             "ESKLESSWOFFPACK_GOV"            = "Microsoft Office 365 (Plan K2) for Government";
             "EXCHANGE_ANALYTICS"             = "Microsoft MyAnalytics";
-            "EXCHANGE_S_ARCHIVE_ADDON_GOV"   = "Exchange Online Archiving";
+            "EXCHANGE_S_ARCHIVE_ADDON_GOV"   = "Exchange Online Archiving Govt";
             "EXCHANGE_S_DESKLESS"            = "Exchange Online Kiosk";
             "EXCHANGE_S_DESKLESS_GOV"        = "Exchange Kiosk";
-            "EXCHANGE_S_ENTERPRISE"          = "Exchange Online (Plan 2)";
+            "EXCHANGE_S_ENTERPRISE"          = "Exchange Online (Plan 2) Ent";
             "EXCHANGE_S_ENTERPRISE_GOV"      = "Exchange Plan 2G";
             "EXCHANGE_S_FOUNDATION"          = "Exchange Foundation for certain SKUs";
             "EXCHANGE_S_STANDARD"            = "Exchange Online (Plan 2)";
@@ -126,7 +126,7 @@ function Get-CloudSkuTable {
             "EXCHANGESTANDARD_GOV"           = "Microsoft Office 365 Exchange Online (Plan 1) only for Government";
             "EXCHANGESTANDARD_STUDENT"       = "Exchange Online (Plan 1) for Students";
             "EXCHANGETELCO"                  = "Exchange Online POP";
-            "FLOW_O365_P2"                   = "Flow for Office 365";
+            "FLOW_O365_P2"                   = "Flow";
             "FLOW_O365_P3"                   = "Flow for Office 365";
             "FORMS_PLAN_E3"                  = "Microsoft Forms (Plan E3)";
             "FORMS_PLAN_E5"                  = "Microsoft Forms (Plan E5)";
@@ -159,7 +159,7 @@ function Get-CloudSkuTable {
             "RMS_S_ENTERPRISE_GOV"           = "Windows Azure Active Directory Rights Management";
             "RMS_S_PREMIUM"                  = "Azure Information Protection Plan 1";
             "RMS_S_PREMIUM2"                 = "Azure Information Protection Premium P2";
-            "SHAREPOINT_PROJECT"             = "SharePoint Online (Plan 2)";
+            "SHAREPOINT_PROJECT"             = "SharePoint Online (Plan 2) Project";
             "SHAREPOINTDESKLESS"             = "SharePoint Online Kiosk";
             "SHAREPOINTDESKLESS_GOV"         = "SharePoint Online Kiosk Gov";
             "SHAREPOINTENTERPRISE"           = "SharePoint Online (Plan 2)";
@@ -185,7 +185,7 @@ function Get-CloudSkuTable {
             "SWAY"                           = "Sway";
             "TEAMS1"                         = "Microsoft Teams";
             "THREAT_INTELLIGENCE"            = "Office 365 Threat Intelligence";
-            "VISIO_CLIENT_SUBSCRIPTION"      = "Visio Pro for Office 365";
+            "VISIO_CLIENT_SUBSCRIPTION"      = "Visio Pro for Office 365 Subscription";
             "VISIOCLIENT"                    = "Visio Pro for Office 365";
             "WACONEDRIVESTANDARD"            = "OneDrive Pack";
             "WIN10_PRO_ENT_SUB"              = "Windows 10 Enterprise E3";
@@ -217,7 +217,7 @@ function Get-CloudSkuTable {
         }              
     }
     End {
-        $array = $resultArray | ForEach-Object { '{1}({0})' -f $_.Sku, $_.Plan }
+        $array = $resultArray | ForEach-Object { '{1}*{0}' -f $_.Sku, $_.Plan }
         $array
     }
 }
