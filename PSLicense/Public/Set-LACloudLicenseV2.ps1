@@ -3,7 +3,20 @@
     Param
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]] $pipelineUser
+        [string[]] $pipelineUser,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $RemoveSkus,
+        
+        [Parameter(Mandatory = $false)]
+        [switch] $RemoveOptions,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $AddSkus,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $AddOptions
+
     )
 
     DynamicParam {          
@@ -19,7 +32,7 @@
             @{
                 Name             = 'addSku2'
                 Type             = [array]
-                Position         = 0
+                Position         = 1
                 Mandatory        = $false
                 ValidateSet      = . Get-CloudSku
                 ParameterSetName = 'ssCollection1'
@@ -27,7 +40,7 @@
             @{
                 Name             = 'addOption1'
                 Type             = [array]
-                Position         = 1
+                Position         = 2
                 Mandatory        = $false
                 ValidateSet      = . Get-CloudSkuTable
                 ParameterSetName = 'ssCollection1'
@@ -35,7 +48,7 @@
             @{
                 Name             = 'addOption2'
                 Type             = [array]
-                Position         = 1
+                Position         = 3
                 Mandatory        = $false
                 ValidateSet      = . Get-CloudSkuTable
                 ParameterSetName = 'ssCollection1'
@@ -43,7 +56,7 @@
             @{
                 Name             = 'addOption3'
                 Type             = [array]
-                Position         = 1
+                Position         = 4
                 Mandatory        = $false
                 ValidateSet      = . Get-CloudSkuTable
                 ParameterSetName = 'ssCollection1'
@@ -54,10 +67,15 @@
 
     # Function's Begin Block
     Begin {
-        New-DynamicParameter -CreateVariables -BoundParameters $PSBoundParameters
+        try {
+            New-DynamicParameter -CreateVariables -BoundParameters $PSBoundParameters -ErrorAction SilentlyContinue
+        }
+        catch {
+
+        }
 
         # Assign Tenant and Location to a variable
-        $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$True"}).name.split(".")[0]
+        $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$true"}).name.split(".")[0]
         $location = "US"
         
         $friendlySku = @{
@@ -239,7 +257,19 @@
             "Yammer Enterprise"                                                 = "YAMMER_ENTERPRISE";
             "Yammer"                                                            = "YAMMER_MIDSIZE"
         }
-
+        if ($RemoveSkus) {
+            $skusToRemove = (. Get-CloudSku | Out-GridView -Title "SKUs to Remove" -PassThru)
+        }
+        if ($RemoveOptions) {
+            $optionsToRemove = (. Get-CloudSkuTable | Out-GridView -Title "Options to Remove" -PassThru)
+        }
+        if ($AddSkus) {
+            $skusToAdd = (. Get-CloudSku | Out-GridView -Title "SKUs to Add" -PassThru)
+        }
+        if ($AddOptions) {
+            $optionsToAdd = (. Get-CloudSkuTable | Out-GridView -Title "Options to Add" -PassThru)
+        }
+       
     }
 
     Process {
@@ -249,6 +279,31 @@
         $user = Get-AzureADUser -ObjectId 'cloud02@sentara1.com'
         $userlic = Get-AzureADUserLicenseDetail -ObjectId 'cloud02@sentara1.com'
         Set-AzureADUser -ObjectId $user.userprincipalname -UsageLocation $location
+        
+        if ($skusToRemove) {
+            Foreach ($rSku in $skusToRemove) {
+                write-host "rSku: $($friendlySku.$rSku)"
+            }
+        }
+
+        if ($optionsToRemove) {
+            $hash = @{}
+            foreach ($rOpt in $optionsToRemove) {
+                if ($hash.containskey($friendlySku[$rOpt.split("*")[0].trim(")")])) {
+                    $hash.($friendlySku[$rOpt.split("*")[0].trim(")")]) += $friendlyOption[$rOpt.split("*")[1]] + ","
+                }
+                else {
+                    $hash[$friendlySku[$rOpt.split("*")[0].trim(")")]] = $friendlyOption[$rOpt.split("*")[1]] + ","
+                }
+            }
+            $hash.GetEnumerator() | ForEach-Object { 
+                write-host $_.name 
+                write-host $_.Value }
+        }
+        
+
+
+        <# 
         $addOpts = $addOption1 + $addOption2 + $addOption3
         $hash = @{}
         for ($i = 0; $i -lt $addOpts.count; $i++) {
@@ -261,9 +316,13 @@
                 }
             }
         }
+
+
         $hash.GetEnumerator() | ForEach-Object { 
             write-host $_.name 
             write-host $_.Value }
+                #>
+
         # for ($i = 0; $i -lt ($hash.keys).Count; $i++)
         #foreach ($h in $hash) {
         #    write-host "1" $h.keys $h.values

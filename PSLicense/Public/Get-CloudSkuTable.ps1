@@ -217,7 +217,7 @@ function Get-CloudSkuTable {
         }              
     }
     End {
-        $array = $resultArray | ForEach-Object { '{1}*{0}' -f $_.Sku, $_.Plan }
+        $array = $resultArray | ForEach-Object { '{0}*{1}' -f $_.Sku, $_.Plan }
         $array
     }
 }
