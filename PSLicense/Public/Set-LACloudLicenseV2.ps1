@@ -259,10 +259,16 @@
                 else {
                     $hash[$friendlySku[$addOpts[$i].split("*")[1].trim(")")]] = $friendlyOption[$addOpts[$i].split("*")[0]] + ","
                 }
-                
-            }  
+            }
         }
-        $hash.ENTERPRISEPREMIUM
+        $hash.GetEnumerator() | ForEach-Object { 
+            write-host $_.name 
+            write-host $_.Value }
+        # for ($i = 0; $i -lt ($hash.keys).Count; $i++)
+        #foreach ($h in $hash) {
+        #    write-host "1" $h.keys $h.values
+        #}
+
         <# foreach ($opt in $addOpts) {
         #if ((Get-AzureADSubscribedSku).skupartnumber -notin $friendlyOption[$opt.Split("(")[1].trim(")")]) {
         $StandardLicense = Get-AzureADSubscribedSku | Where {$_.SkuId -eq "c7df2760-2c81-4ef7-b578-5b5392b571df"}
