@@ -73,6 +73,12 @@
         catch {
 
         }
+        # Create hashtable from Name to SkuId lookup
+        $SkuIdHash = @{}
+        Get-AzureADSubscribedSku | Select SkuPartNumber,SkuId | ForEach-Object {
+            $SkuIdHash[$_.SkuPartNumber] = $_.SkuId
+            # Write-Host "$_.SkuPartNumber"
+        }
 
         # Assign Tenant and Location to a variable
         $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$true"}).name.split(".")[0]
@@ -276,14 +282,17 @@
         $DisabledOptions = @()  
         $resultArray = @()    
         
-        $user = Get-AzureADUser -ObjectId 'cloud02@sentara1.com'
-        $userlic = Get-AzureADUserLicenseDetail -ObjectId 'cloud02@sentara1.com'
-        Set-AzureADUser -ObjectId $user.userprincipalname -UsageLocation $location
+        $user = Get-AzureADUser -ObjectId $_.userprincipalname
+        $userlic = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
+        Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
         
         if ($skusToRemove) {
             Foreach ($rSku in $skusToRemove) {
-                write-host "rSku: $($friendlySku.$rSku)"
+                if ($friendlySku.$rSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    $rSkuGroup += $friendlySku.$rSku + ","
+                } 
             }
+            Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $rSkuGroup "
         }
 
         if ($optionsToRemove) {
@@ -299,6 +308,12 @@
             $hash.GetEnumerator() | ForEach-Object { 
                 write-host $_.name 
                 write-host $_.Value }
+        }
+                
+        if ($skusToAdd) {
+            Foreach ($rSku in $skusToAdd) {
+                write-host "rSku: $($friendlySku.$rSku)"
+            }
         }
         
 
