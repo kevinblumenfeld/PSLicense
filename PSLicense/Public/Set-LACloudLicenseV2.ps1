@@ -74,9 +74,9 @@
 
         }
         # Create hashtable from Name to SkuId lookup
-        $SkuIdHash = @{}
+        $skuIdHash = @{}
         Get-AzureADSubscribedSku | Select SkuPartNumber,SkuId | ForEach-Object {
-            $SkuIdHash[$_.SkuPartNumber] = $_.SkuId
+            $skuIdHash[$_.SkuPartNumber] = $_.SkuId
             # Write-Host "$_.SkuPartNumber"
         }
 
@@ -280,7 +280,8 @@
 
     Process {
         $DisabledOptions = @()  
-        $resultArray = @()    
+        $resultArray = @()   
+        $rSkuGroup = @() 
         
         $user = Get-AzureADUser -ObjectId $_.userprincipalname
         $userlic = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
@@ -289,10 +290,13 @@
         if ($skusToRemove) {
             Foreach ($rSku in $skusToRemove) {
                 if ($friendlySku.$rSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                    $rSkuGroup += $friendlySku.$rSku + ","
+                    $rSkuGroup += $friendlySku.$rSku 
                 } 
             }
             Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $rSkuGroup "
+            $LicensesToAssign = New-LicenseToAssign -Name $rSkuGroup
+            Write-Output "$licensesToAssign"
+            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $LicensesToAssign
         }
 
         if ($optionsToRemove) {
