@@ -75,7 +75,7 @@
         }
         # Create hashtable from Name to SkuId lookup
         $skuIdHash = @{}
-        Get-AzureADSubscribedSku | Select SkuPartNumber,SkuId | ForEach-Object {
+        Get-AzureADSubscribedSku | Select SkuPartNumber, SkuId | ForEach-Object {
             $skuIdHash[$_.SkuPartNumber] = $_.SkuId
             # Write-Host "$_.SkuPartNumber"
         }
@@ -84,7 +84,7 @@
         $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$true"}).name.split(".")[0]
         $location = "US"
         
-        $friendlySku = @{
+        $friendly2UglySku = @{
             "AX ENTERPRISE USER"                               = "AX_ENTERPRISE_USER";
             "AX SELF-SERVE USER"                               = "AX_SELF-SERVE_USER";
             "AX_SANDBOX_INSTANCE_TIER2"                        = "AX_SANDBOX_INSTANCE_TIER2";
@@ -163,7 +163,7 @@
             "Yammer Midsize"                                   = "YAMMER_MIDSIZE"
         }
 
-        $friendlyOption = @{
+        $friendly2UglyOption = @{
             "Azure Active Directory Premium P2"                                 = "AAD_PREMIUM_P2";
             "Azure Active Directory Premium Plan 1"                             = "AAD_PREMIUM";
             "Azure Information Protection Plan 1"                               = "RMS_S_PREMIUM";
@@ -281,32 +281,33 @@
     Process {
         $DisabledOptions = @()  
         $resultArray = @()   
-        $rSkuGroup = @() 
+        $removeSkuGroup = @() 
+        $addSkuGroup = @()
+        $addAlreadySkuGroup = @()
         
         $user = Get-AzureADUser -ObjectId $_.userprincipalname
         $userlic = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
         Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
         
         if ($skusToRemove) {
-            Foreach ($rSku in $skusToRemove) {
-                if ($friendlySku.$rSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                    $rSkuGroup += $friendlySku.$rSku 
+            Foreach ($removeSku in $skusToRemove) {
+                if ($friendly2UglySku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    $removeSkuGroup += $friendly2UglySku.$removeSku 
                 } 
             }
-            Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $rSkuGroup "
-            $LicensesToAssign = New-LicenseToAssign -Name $rSkuGroup
-            Write-Output "$licensesToAssign"
+            Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
+            $LicensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $LicensesToAssign
         }
 
         if ($optionsToRemove) {
             $hash = @{}
             foreach ($rOpt in $optionsToRemove) {
-                if ($hash.containskey($friendlySku[$rOpt.split("*")[0].trim(")")])) {
-                    $hash.($friendlySku[$rOpt.split("*")[0].trim(")")]) += $friendlyOption[$rOpt.split("*")[1]] + ","
+                if ($hash.containskey($friendly2UglySku[$rOpt.split("*")[0].trim(")")])) {
+                    $hash.($friendly2UglySku[$rOpt.split("*")[0].trim(")")]) += $friendly2UglyOption[$rOpt.split("*")[1]] + ","
                 }
                 else {
-                    $hash[$friendlySku[$rOpt.split("*")[0].trim(")")]] = $friendlyOption[$rOpt.split("*")[1]] + ","
+                    $hash[$friendly2UglySku[$rOpt.split("*")[0].trim(")")]] = $friendly2UglyOption[$rOpt.split("*")[1]] + ","
                 }
             }
             $hash.GetEnumerator() | ForEach-Object { 
@@ -315,23 +316,40 @@
         }
                 
         if ($skusToAdd) {
-            Foreach ($rSku in $skusToAdd) {
-                write-host "rSku: $($friendlySku.$rSku)"
+            Foreach ($addSku in $skusToAdd) {
+                if ($friendly2UglySku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    $addSkuGroup += $friendly2UglySku.$addSku 
+                } 
+                if ($friendly2UglySku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    $addAlreadySkuGroup += $friendly2UglySku.$addSku
+                } 
             }
+            if ($addSkuGroup) {
+                Write-Verbose "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
+                $LicensesToAssign = Set-SkuChange -add -skus $addSkuGroup
+                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $LicensesToAssign
+            }
+            if ($addAlreadySkuGroup) {
+                Write-Verbose "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
+                $LicensesToAssign = Set-SkuChange -addAlready -skus $addAlreadySkuGroup
+                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $LicensesToAssign
+            }
+            
         }
         
 
 
-        <# 
+        <# OLD CODE
+
         $addOpts = $addOption1 + $addOption2 + $addOption3
         $hash = @{}
         for ($i = 0; $i -lt $addOpts.count; $i++) {
             if ($addOpts[$i]) {
-                if ($hash.containskey($friendlySku[$addOpts[$i].split("*")[1].trim(")")])) {
-                    $hash.($friendlySku[$addOpts[$i].split("*")[1].trim(")")]) += $friendlyOption[$addOpts[$i].split("*")[0]] + ","
+                if ($hash.containskey($friendly2UglySku[$addOpts[$i].split("*")[1].trim(")")])) {
+                    $hash.($friendly2UglySku[$addOpts[$i].split("*")[1].trim(")")]) += $friendly2UglyOption[$addOpts[$i].split("*")[0]] + ","
                 }
                 else {
-                    $hash[$friendlySku[$addOpts[$i].split("*")[1].trim(")")]] = $friendlyOption[$addOpts[$i].split("*")[0]] + ","
+                    $hash[$friendly2UglySku[$addOpts[$i].split("*")[1].trim(")")]] = $friendly2UglyOption[$addOpts[$i].split("*")[0]] + ","
                 }
             }
         }
@@ -348,10 +366,10 @@
         #}
 
         <# foreach ($opt in $addOpts) {
-        #if ((Get-AzureADSubscribedSku).skupartnumber -notin $friendlyOption[$opt.Split("(")[1].trim(")")]) {
+        #if ((Get-AzureADSubscribedSku).skupartnumber -notin $friendly2UglyOption[$opt.Split("(")[1].trim(")")]) {
         $StandardLicense = Get-AzureADSubscribedSku | Where {$_.SkuId -eq "c7df2760-2c81-4ef7-b578-5b5392b571df"}
-        # ((Get-AzureADSubscribedSku)| where {$_.SkuPartNumber -eq ($friendlyOption[$opt.Split("(")[1].trim(")")])})
-        $TheFeaturesToDisable = "TEAMS1"  #$friendlySku[$opt.split("(")[0]]
+        # ((Get-AzureADSubscribedSku)| where {$_.SkuPartNumber -eq ($friendly2UglyOption[$opt.Split("(")[1].trim(")")])})
+        $TheFeaturesToDisable = "TEAMS1"  #$friendly2UglySku[$opt.split("(")[0]]
         $SkuFeaturesToDisable = $StandardLicense.ServicePlans | ForEach-Object { $_ | Where {$_.ServicePlanName -in $TheFeaturesToDisable }}
         # $addSku = $StandardLicense.skuid
         $license = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicense
@@ -363,7 +381,9 @@
 
         # }
         #} 
-        #>
+        
+        END OF OLD CODE #>
+
     } #End of Process Block 
     End {
     }
