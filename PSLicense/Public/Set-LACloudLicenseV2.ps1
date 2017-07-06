@@ -1,4 +1,4 @@
-﻿ c:\scripts\test.ps1
+﻿# . c:\scripts\test.ps1
 function Set-LACloudLicenseV2 {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param
@@ -356,6 +356,7 @@ function Set-LACloudLicenseV2 {
                 # User already has Sku
                 if ($_.name -in $userlic.skupartnumber) {
                     $enabled = $_.Value + ((($userlic | Where {$_.skupartnumber -eq $_.Name}).serviceplans | where {$_.provisioningStatus -ne 'Disabled'}).serviceplanname)
+                    write-host "enabled: $enabled"
                     $LicensesToAssign = Set-SkuChange -addAlreadyOptions -skus $_.name -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $LicensesToAssign  
                 }
