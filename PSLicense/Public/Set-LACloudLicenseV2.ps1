@@ -15,24 +15,33 @@ function Set-LACloudLicenseV2 {
         [switch] $AddSkus,
 
         [Parameter(Mandatory = $false)]
-        [switch] $AddOptions
+        [switch] $AddOptions,
 
+        [Parameter(Mandatory = $false)]
+        [switch] $SwapSkus,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $SwapSourceIgnore,
+        
+        [Parameter(Mandatory = $false)]
+        [switch] $SwapDestAdd
+        
     )
 
     # Begin Block
     Begin {
 
-    # Create hashtable from Name to SkuId lookup
+        # Create hashtable from Name to SkuId lookup
         $skuIdHash = @{}
         Get-AzureADSubscribedSku | Select SkuPartNumber, SkuId | ForEach-Object {
             $skuIdHash[$_.SkuPartNumber] = $_.SkuId
         }
 
-    # Assign Tenant and Location to a variable
+        # Assign Tenant and Location to a variable
         $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$true"}).name.split(".")[0]
         $location = "US"
         
-    # Friendly 2 Ugly Hashtable Lookups
+        # Friendly 2 Ugly Hashtable Lookups
         $f2uSku = @{
             "AX ENTERPRISE USER"                               = "AX_ENTERPRISE_USER";
             "AX SELF-SERVE USER"                               = "AX_SELF-SERVE_USER";
@@ -213,7 +222,7 @@ function Set-LACloudLicenseV2 {
             "Yammer"                                                            = "YAMMER_MIDSIZE"
         }
 
-    # Based on Runtime switches, Out-GridView(s) are presented for user input
+        # Based on Runtime switches, Out-GridView(s) are presented for user input
         if ($RemoveSkus) {
             [string[]]$skusToRemove = (. Get-CloudSku | Out-GridView -Title "SKUs to Remove" -PassThru)
         }
@@ -226,23 +235,35 @@ function Set-LACloudLicenseV2 {
         if ($AddOptions) {
             [string[]]$optionsToAdd = (. Get-CloudSkuTable | Out-GridView -Title "Options to Add" -PassThru)
         } 
+        if ($SwapSkus) {
+            $SwapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
+            $SwapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
+        }
+        if ($SwapSourceIgnore) {
+            [string[]]$SourceIgnore = (. Get-CloudSkuTable | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+        }
+        if ($SwapDestAdd) {
+            [string[]]$DestAdd = (. Get-CloudSkuTable | Out-GridView -Title "DESTINATION Options to Add" -PassThru)
+        }
+        
+
     }
 
     Process {
 
-    # Define Arrays
+        # Define Arrays
         $removeSkuGroup = @() 
         $addSkuGroup = @()
         $addAlreadySkuGroup = @()
         $enabled = @()
         $disabled = @()
 
-    # Set user-specific variables
+        # Set user-specific variables
         $user = Get-AzureADUser -ObjectId $_.userprincipalname
         $userLicense = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
         Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
         
-    # Remove Sku(s).  Might add a check later to see if user has it or not.
+        # Remove Sku(s).  Might add a check later to see if user has it or not.
         if ($skusToRemove) {
             Foreach ($removeSku in $skusToRemove) {
                 if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
@@ -254,7 +275,7 @@ function Set-LACloudLicenseV2 {
             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
         }
 
-    # Remove Options.  Only if user is assigned Sku.
+        # Remove Options.  Only if user is assigned Sku.
         if ($optionsToRemove) {
             $hashRem = @{}
             for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
@@ -269,21 +290,21 @@ function Set-LACloudLicenseV2 {
             }
             $hashRem.GetEnumerator() | ForEach-Object { 
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
-            # User already has Sku
+                # User already has Sku
                 if ($_.name -in $userLicense.skupartnumber) {
                     $disabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match $_.Name}).serviceplans | where {$_.provisioningStatus -eq 'Disabled'}).serviceplanname)
                     Write-Verbose "Options to remove + options currently disabled: $disabled "
                     $licensesToAssign = Set-SkuChange -removeTheOptions -skus $_.name -options $disabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
-            # User does not have Sku so do nothing
+                # User does not have Sku so do nothing
                 else {
                     Write-Verbose "User does not have SKU, no options to remove"
                 }
                   
             }
         }
-    # Add Sku(s).  If user has Sku already, all options will be added        
+        # Add Sku(s).  If user has Sku already, all options will be added        
         if ($skusToAdd) {
             Foreach ($addSku in $skusToAdd) {
                 if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
@@ -293,20 +314,20 @@ function Set-LACloudLicenseV2 {
                     $addAlreadySkuGroup += $f2uSku.$addSku
                 } 
             }
-        # Add fresh Sku(s)
+            # Add fresh Sku(s)
             if ($addSkuGroup) {
                 Write-Verbose "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
                 $licensesToAssign = Set-SkuChange -add -skus $addSkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
-        # Backfill already assigned Sku(s) with any missing options
+            # Backfill already assigned Sku(s) with any missing options
             if ($addAlreadySkuGroup) {
                 Write-Verbose "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
                 $licensesToAssign = Set-SkuChange -addAlready -skus $addAlreadySkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
         }
-    # Add Option(s). User will be assigned Sku with the options if user has yet to have Sku assigned 
+        # Add Option(s). User will be assigned Sku with the options if user has yet to have Sku assigned 
         if ($optionsToAdd) {
             $hashAdd = @{}
             for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
@@ -321,14 +342,14 @@ function Set-LACloudLicenseV2 {
             }
             $hashAdd.GetEnumerator() | ForEach-Object { 
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
-            # User already has Sku
+                # User already has Sku
                 if ($_.name -in $userLicense.skupartnumber) {
                     $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match "$_.Name"}).serviceplans | where {$_.provisioningStatus -ne 'Disabled'}).serviceplanname)
                     Write-Verbose "Options to add + options currently enabled: $enabled "
                     $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
-            # User does not have Sku yet
+                # User does not have Sku yet
                 else {
                     $enabled = [pscustomobject]$_.Value
                     Write-Verbose "User does not have SKU, adding Sku with options: $enabled "
@@ -336,6 +357,23 @@ function Set-LACloudLicenseV2 {
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
                   
+            }
+        }
+        if ($SwapSkus) {
+            (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $f2uSku.$swapdest}) | foreach {
+                if ($f2uSku.$swapdest -eq $f2uSku.$SwapSource) {
+                    Write-Output "Source and Destination Skus are identical"
+                    Write-Output "Source Sku: $($f2uSku.$SwapSource) and Destination Sku: $($f2uSku.$swapdest)"
+                    Write-Output "Please choose a different Source or Destination Sku"                
+                }
+                Break
+                if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
+                    Write-Output "Out of $($f2uSku.$swapdest) licenses.  Please allocate more then rerun."
+                    Break 
+                }
+                Else {
+                    "Licenses Available"
+                }
             }
         }
     } 
