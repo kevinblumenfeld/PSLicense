@@ -20,11 +20,15 @@
         [switch] $addAlreadyOptions,
         
         [Parameter(Mandatory = $false)]
-        [switch] $addTheOptions
+        [switch] $addTheOptions,
+        
+        [Parameter(Mandatory = $false)]
+        [switch] $removeTheOptions
 
     )
     $SkuFeaturesToEnable = @()
     $SkuFeaturesToDisable = @()
+    $SkuOptsToDisable = @()
     $skuIdHash = @{}
     Get-AzureADSubscribedSku | Select SkuPartNumber, SkuId | ForEach-Object {
         $skuIdHash[$_.SkuPartNumber] = $_.SkuId
@@ -58,13 +62,26 @@
             $licensesToAssign.AddLicenses += $license
         }
     }
-
+    # Add Option(s).  Adds Sku if user has yet to be unassigned it
     if ($addTheOptions) {
         $licensesToAssign = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicenses
         foreach ($sku in $skus) {
             $SkuFeaturesToEnable = $options
             $StandardLicense = Get-AzureADSubscribedSku | Where {$_.SkuId -eq $skuIdHash.$sku}
             $SkuFeaturesToDisable = $StandardLicense.ServicePlans | ForEach-Object { $_ | Where {$_.ServicePlanName -notin $SkuFeaturesToEnable }}
+            $license = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicense
+            $License.DisabledPlans = $SkuFeaturesToDisable.ServicePlanId
+            $license.SkuId = $StandardLicense.SkuId
+            $licensesToAssign.AddLicenses += $license
+        }
+    }
+    # Remove Option(s) only if user has the appropriate Sku assigned
+    if ($removeTheOptions) {
+        $licensesToAssign = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicenses
+        foreach ($sku in $skus) {
+            $SkuOptsToDisable = $options
+            $StandardLicense = Get-AzureADSubscribedSku | Where {$_.SkuId -eq $skuIdHash.$sku}
+            $SkuFeaturesToDisable = $StandardLicense.ServicePlans | ForEach-Object { $_ | Where {$_.ServicePlanName -in $SkuOptsToDisable }}
             $license = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicense
             $License.DisabledPlans = $SkuFeaturesToDisable.ServicePlanId
             $license.SkuId = $StandardLicense.SkuId
