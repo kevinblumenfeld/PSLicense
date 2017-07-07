@@ -64,14 +64,14 @@
     }
     # Add Option(s).  Adds Sku if user has yet to be unassigned it
     if ($addTheOptions) {
-        $licensesToAssign = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicenses
         foreach ($sku in $skus) {
             $SkuFeaturesToEnable = $options
             $StandardLicense = Get-AzureADSubscribedSku | Where {$_.SkuId -eq $skuIdHash.$sku}
             $SkuFeaturesToDisable = $StandardLicense.ServicePlans | ForEach-Object { $_ | Where {$_.ServicePlanName -notin $SkuFeaturesToEnable }}
             $license = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicense
-            $License.DisabledPlans = $SkuFeaturesToDisable.ServicePlanId
             $license.SkuId = $StandardLicense.SkuId
+            $license.DisabledPlans = $SkuFeaturesToDisable.ServicePlanId
+            $licensesToAssign = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicenses
             $licensesToAssign.AddLicenses += $license
         }
     }
