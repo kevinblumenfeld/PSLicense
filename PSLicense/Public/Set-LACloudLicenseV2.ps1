@@ -236,14 +236,14 @@ function Set-LACloudLicenseV2 {
             [string[]]$optionsToAdd = (. Get-CloudSkuTable | Out-GridView -Title "Options to Add" -PassThru)
         } 
         if ($SwapSkus) {
-            $SwapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
-            $SwapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
+            $swapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
+            $swapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
         }
         if ($SwapSourceIgnore) {
-            [string[]]$SourceIgnore = (. Get-CloudSkuTable | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+            [string[]]$sourceIgnore = (. Get-CloudSkuTable | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
         }
         if ($SwapDestAdd) {
-            [string[]]$DestAdd = (. Get-CloudSkuTable | Out-GridView -Title "DESTINATION Options to Add" -PassThru)
+            [string[]]$destAdd = (. Get-CloudSkuTable | Out-GridView -Title "DESTINATION Options to Add" -PassThru)
         }
         
 
@@ -277,6 +277,7 @@ function Set-LACloudLicenseV2 {
 
         # Remove Options.  Only if user is assigned Sku.
         if ($optionsToRemove) {
+            write-host "OPTIONS TO REMOVE!!!!"
             $hashRem = @{}
             for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
                 if ($optionsToRemove[$i]) {
@@ -289,6 +290,7 @@ function Set-LACloudLicenseV2 {
                 }
             }
             $hashRem.GetEnumerator() | ForEach-Object { 
+                Write-Host "IN GET ENUMERATOR!!!!!!!"
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 if ($_.name -in $userLicense.skupartnumber) {
@@ -344,7 +346,7 @@ function Set-LACloudLicenseV2 {
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 if ($_.name -in $userLicense.skupartnumber) {
-                    $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match "$_.Name"}).serviceplans | where {$_.provisioningStatus -ne 'Disabled'}).serviceplanname)
+                    $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match $_.key}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname)
                     Write-Verbose "Options to add + options currently enabled: $enabled "
                     $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
@@ -360,19 +362,32 @@ function Set-LACloudLicenseV2 {
             }
         }
         if ($SwapSkus) {
-            (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $f2uSku.$swapdest}) | foreach {
-                if ($f2uSku.$swapdest -eq $f2uSku.$SwapSource) {
-                    Write-Output "Source and Destination Skus are identical"
-                    Write-Output "Source Sku: $($f2uSku.$SwapSource) and Destination Sku: $($f2uSku.$swapdest)"
-                    Write-Output "Please choose a different Source or Destination Sku"                
-                }
+            if ($SwapSource -eq $swapDest) {
+                Write-Output "Source and Destination Skus are identical"
+                Write-Output "Source Sku: $($f2uSku.$SwapSource) and Destination Sku: $($f2uSku.$swapdest)"
+                Write-Output "Please choose a different Source or Destination Sku"                
                 Break
+            }
+            (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $f2uSku.$swapdest}) | ForEach-Object {
                 if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
                     Write-Output "Out of $($f2uSku.$swapdest) licenses.  Please allocate more then rerun."
                     Break 
                 }
                 Else {
-                    "Licenses Available"
+                    $dest = $_.serviceplans.serviceplanname
+                    $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $f2uSku.$SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
+                    # $source = ((Get-AzureADUser | Where {$_.skupartnumber -eq $f2uSku.$swapSource}) | where {$_.serviceplans.provisioningStatus -ne 'Disabled'}).serviceplans.serviceplanname
+                    # Write-Host "SOURCE: $($f2uSku.$swapSource)"
+                    $destarray = Get-UniqueProducts $dest
+                    $sourcearray = Get-UniqueProducts $source
+                    # Write-Host "SourceArray Keys"
+                    # Write-Host $($sourcearray.keys)
+                    # Write-Host "DESTArray Keys"
+                    # Write-Host $($destarray.keys)
+                    
+                    $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                    $o = $options2swap | % {$destarray[$_]}
+                    $o
                 }
             }
         }

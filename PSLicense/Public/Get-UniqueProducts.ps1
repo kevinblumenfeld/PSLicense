@@ -27,10 +27,10 @@ _O365" -split "`r`n"
             $searchString = $searchString -replace "$suffix$", "REPLACED"
         }
         $uniques += $searchString -replace "REPLACED"
-        if (!($sthash.ContainsKey($ss))) {
-            $sthash.$ss = $uniques[(($uniques.count) - 1)]
+        if (!($sthash.ContainsKey($uniques[(($uniques.count) - 1)]))) {
+            $sthash.($uniques[(($uniques.count) - 1)]) = $ss
         }
     }
-    $uniques | Select -Unique
-    # $sthash
+    # $uniques | Select -Unique
+    $sthash
 }
