@@ -41,7 +41,7 @@ function Set-LACloudLicenseV2 {
         $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$true"}).name.split(".")[0]
         $location = "US"
         
-        # Friendly 2 Ugly Hashtable Lookups
+        # Friendly 2 Ugly hashtable Lookups
         $f2uSku = @{
             "AX ENTERPRISE USER"                               = "AX_ENTERPRISE_USER";
             "AX SELF-SERVE USER"                               = "AX_SELF-SERVE_USER";
@@ -246,7 +246,6 @@ function Set-LACloudLicenseV2 {
             [string[]]$destAdd = (. Get-CloudSkuTable | Out-GridView -Title "DESTINATION Options to Add" -PassThru)
         }
         
-
     }
 
     Process {
@@ -281,11 +280,11 @@ function Set-LACloudLicenseV2 {
             $hashRem = @{}
             for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
                 if ($optionsToRemove[$i]) {
-                    if ($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0].trim(")")])) {
-                        $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0].trim(")")]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
+                    if ($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]])) {
+                        $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
                     }
                     else {
-                        $hashRem[$f2uSku[$optionsToRemove[$i].split("*")[0].trim(")")]] = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                        $hashRem[$f2uSku[$optionsToRemove[$i].split("*")[0]]] = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
                     }
                 }
             }
@@ -334,11 +333,11 @@ function Set-LACloudLicenseV2 {
             $hashAdd = @{}
             for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
                 if ($optionsToAdd[$i]) {
-                    if ($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0].trim(")")])) {
-                        $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0].trim(")")]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
+                    if ($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]])) {
+                        $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
                     }
                     else {
-                        $hashAdd[$f2uSku[$optionsToAdd[$i].split("*")[0].trim(")")]] = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                        $hashAdd[$f2uSku[$optionsToAdd[$i].split("*")[0]]] = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
                     }
                 }
             }
@@ -376,18 +375,25 @@ function Set-LACloudLicenseV2 {
                 Else {
                     $dest = $_.serviceplans.serviceplanname
                     $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $f2uSku.$SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
-                    # $source = ((Get-AzureADUser | Where {$_.skupartnumber -eq $f2uSku.$swapSource}) | where {$_.serviceplans.provisioningStatus -ne 'Disabled'}).serviceplans.serviceplanname
-                    # Write-Host "SOURCE: $($f2uSku.$swapSource)"
-                    $destarray = Get-UniqueProducts $dest
-                    $sourcearray = Get-UniqueProducts $source
-                    # Write-Host "SourceArray Keys"
-                    # Write-Host $($sourcearray.keys)
-                    # Write-Host "DESTArray Keys"
-                    # Write-Host $($destarray.keys)
-                    
-                    $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
-                    $o = $options2swap | % {$destarray[$_]}
-                    $o
+                    if ($source) {
+                        $destarray = Get-UniqueProducts $dest
+                        $sourcearray = Get-UniqueProducts $source
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $options2swap | % {$destarray[$_]}
+                        $options2swap
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
+                        try {
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                            $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$SwapSource
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                        }
+                        catch {
+                            $_
+                        }
+                    }
+                    else {
+                        Write-Verbose "User: $($user.UserPrincipalName) does not have source Sku:  $($f2uSku.$SwapSource), no changes will be made to this user"
+                    }
                 }
             }
         }
