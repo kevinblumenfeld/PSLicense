@@ -1,4 +1,4 @@
-﻿function Set-LACloudLicenseTEST {
+﻿function Get-Sku2Service {
     $resultArray = @()
     $skus = (Get-AzureADSubscribedSku)
     

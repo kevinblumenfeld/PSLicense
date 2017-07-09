@@ -5,8 +5,11 @@ function Get-UserLicense {
         [Parameter(Mandatory = $true)]
         $user,
 
-        [Parameter(Mandatory = $true)]
-        [switch] $notDisabled
+        [Parameter(Mandatory = $false)]
+        [switch] $notDisabled,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $onlyDisabled
     )
 
     # Begin Block
@@ -202,6 +205,19 @@ function Get-UserLicense {
                 $uLicHash['Sku'] = $sku.($ul.skupartnumber)
                 foreach ($u in $ul.serviceplans) {
                     if ($u.ProvisioningStatus -ne 'Disabled') {
+                        $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                        $uLicHash['Status'] = $u.ProvisioningStatus
+                        $resultArray += [pscustomobject]$uLicHash   
+                    }
+                }
+            }  
+        }
+        if ($onlyDisabled) {
+            foreach ($ul in $userLicense) {
+                $uLicHash = [ordered]@{}
+                $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+                foreach ($u in $ul.serviceplans) {
+                    if ($u.ProvisioningStatus -eq 'Disabled') {
                         $uLicHash['Option'] = $plans.($u.Serviceplanname)
                         $uLicHash['Status'] = $u.ProvisioningStatus
                         $resultArray += [pscustomobject]$uLicHash   

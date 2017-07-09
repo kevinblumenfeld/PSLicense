@@ -33,7 +33,13 @@ function Set-LACloudLicenseV2 {
         [switch] $InspectUserLicenses,      
 
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicensesNotDisabled        
+        [switch] $InspectUserLicensesNotDisabled,        
+        
+        [Parameter(Mandatory = $false)]
+        [switch] $InspectUserLicensesOnlyDisabled,        
+                
+        [Parameter(Mandatory = $false)]
+        [switch] $DisplayAllSkusAndOptions        
         
     )
 
@@ -254,6 +260,11 @@ function Set-LACloudLicenseV2 {
         if ($TemplateMode) {
             [string[]]$template = (. Get-CloudSkuTable | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
         }
+        if ($DisplayAllSkusAndOptions) {
+            [string[]]$allSkusOptions = (. Get-Sku2Service | Out-GridView -Title "All Skus and Options")
+        }
+
+        
         
     }
 
@@ -265,12 +276,16 @@ function Set-LACloudLicenseV2 {
         $addAlreadySkuGroup = @()
         $enabled = @()
         $disabled = @()
+        $sKey = @()
 
         if ($InspectUserLicenses) {
             (. Get-UserLicense -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
         if ($InspectUserLicensesNotDisabled) {
             (. Get-UserLicense -notDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+        if ($InspectUserLicensesOnlyDisabled) {
+            (. Get-UserLicense -onlyDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
 
         # Set user-specific variables
@@ -300,21 +315,48 @@ function Set-LACloudLicenseV2 {
             $hashRem = @{}
             for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
                 if ($optionsToRemove[$i]) {
-                    if ($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]])) {
-                        $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
+                    if (($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]]) -or ($hashRem.containskey($optionsToRemove[$i].split("*")[0])))) {
+                        if (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
+                            $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
+                        }
+                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
+                            $hashRem.($optionsToRemove[$i].split("*")[0]) += ($optionsToRemove[$i].split("*")[1])
+                        }
+                        elseif (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
+                            $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += ($optionsToRemove[$i].split("*")[1])
+                        }
+                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
+                            $hashRem.($optionsToRemove[$i].split("*")[0]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
+                        }
                     }
                     else {
-                        $hashRem[$f2uSku[$optionsToRemove[$i].split("*")[0]]] = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                        if (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
+                            Write-Host "in first if of ELSE"
+                            $hashRem[$f2uSku[$optionsToRemove[$i].split("*")[0]]] = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                        }
+                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
+                            Write-Host "in SECOND if of ELSE"
+                            $hashRem.($optionsToRemove[$i].split("*")[0]) = @($optionsToRemove[$i].split("*")[1])
+                        }
+                        elseif (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
+                            Write-Host "in THIRD!! if of ELSE"
+                            $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($optionsToRemove[$i].split("*")[1])
+                        }
+                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
+                            Write-Host "in FORTH!!!!! if of ELSE"
+                            $hashRem.($optionsToRemove[$i].split("*")[0]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                        }
                     }
                 }
             }
             $hashRem.GetEnumerator() | ForEach-Object { 
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
-                if ($_.name -in $userLicense.skupartnumber) {
-                    $disabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match $_.Name}).serviceplans | where {$_.provisioningStatus -eq 'Disabled'}).serviceplanname)
-                    Write-Verbose "Options from Sku: $($_.key) to remove + options currently disabled: $disabled "
-                    $licensesToAssign = Set-SkuChange -removeTheOptions -skus $_.name -options $disabled
+                $sKey = $_.key
+                if ($sKey -in $userLicense.skupartnumber) {
+                    $disabled = $_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | where {$_.provisioningStatus -eq 'Disabled'}).serviceplanname)
+                    Write-Verbose "Options from Sku: $sKey to remove + options currently disabled: $disabled "
+                    $licensesToAssign = Set-SkuChange -removeTheOptions -skus $sKey -options $disabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
                 # User does not have Sku so do nothing
@@ -363,17 +405,18 @@ function Set-LACloudLicenseV2 {
             $hashAdd.GetEnumerator() | ForEach-Object { 
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
-                if ($_.name -in $userLicense.skupartnumber) {
-                    $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match $_.key}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname)
-                    Write-Verbose "Options to add + options currently enabled: $enabled "
-                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
+                $sKey = $_.key
+                if ($sKey -in $userLicense.skupartnumber) {
+                    $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname)
+                    Write-Verbose "Options from Sku: $sKey to add + options currently enabled: $enabled "
+                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
                 # User does not have Sku yet
                 else {
                     $enabled = [pscustomobject]$_.Value
-                    Write-Verbose "User does not have SKU, adding Sku with options: $enabled "
-                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
+                    Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
+                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
             }
@@ -438,17 +481,18 @@ function Set-LACloudLicenseV2 {
             $hashAdd.GetEnumerator() | ForEach-Object { 
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
-                if ($_.name -in $userLicense.skupartnumber) {
+                $sKey = $_.key
+                if ($sKey -in $userLicense.skupartnumber) {
                     $enabled = [pscustomobject]$_.Value
-                    Write-Verbose "Only options that will be applied for Sku $($_.key) : $enabled "
-                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
+                    Write-Verbose "Only options that will be applied for Sku $sKey : $enabled "
+                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
                 # User does not have Sku yet
                 else {
                     $enabled = [pscustomobject]$_.Value
-                    Write-Verbose "User does not have SKU, adding Sku with options: $enabled "
-                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
+                    Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
+                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
             }
