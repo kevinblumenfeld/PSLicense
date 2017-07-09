@@ -15,10 +15,7 @@
         
         [Parameter(Mandatory = $false)]
         [switch] $remove,        
-        
-        [Parameter(Mandatory = $false)]
-        [switch] $addAlreadyOptions,
-        
+
         [Parameter(Mandatory = $false)]
         [switch] $addTheOptions,
         

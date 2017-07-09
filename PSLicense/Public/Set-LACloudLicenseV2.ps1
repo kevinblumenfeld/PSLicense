@@ -21,10 +21,16 @@ function Set-LACloudLicenseV2 {
         [switch] $SwapSkus,
 
         [Parameter(Mandatory = $false)]
-        [switch] $SwapSourceIgnore,
+        [switch] $WhileSwapIgnoreSourceOptions,
         
         [Parameter(Mandatory = $false)]
-        [switch] $SwapDestAdd
+        [switch] $SwapDestAdd,
+                
+        [Parameter(Mandatory = $false)]
+        [switch] $TemplateMode,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $InspectUserLicenses        
         
     )
 
@@ -239,11 +245,11 @@ function Set-LACloudLicenseV2 {
             $swapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
             $swapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
         }
-        if ($SwapSourceIgnore) {
-            [string[]]$sourceIgnore = (. Get-CloudSkuTable | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
-        }
         if ($SwapDestAdd) {
             [string[]]$destAdd = (. Get-CloudSkuTable | Out-GridView -Title "DESTINATION Options to Add" -PassThru)
+        }
+        if ($TemplateMode) {
+            [string[]]$template = (. Get-CloudSkuTable | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
         }
         
     }
@@ -257,6 +263,10 @@ function Set-LACloudLicenseV2 {
         $enabled = @()
         $disabled = @()
 
+        if ($InspectUserLicenses) {
+            (. Get-UserLicense -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+
         # Set user-specific variables
         $user = Get-AzureADUser -ObjectId $_.userprincipalname
         $userLicense = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
@@ -269,14 +279,18 @@ function Set-LACloudLicenseV2 {
                     $removeSkuGroup += $f2uSku.$removeSku 
                 } 
             }
-            Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
-            $licensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
-            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+            if ($removeSkuGroup) {
+                Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
+                $licensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
+                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+            }
+            Else {
+                Write-Verbose "$($_.userprincipalname) does not have any of the Skus requested for removal"
+            }
         }
 
         # Remove Options.  Only if user is assigned Sku.
         if ($optionsToRemove) {
-            write-host "OPTIONS TO REMOVE!!!!"
             $hashRem = @{}
             for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
                 if ($optionsToRemove[$i]) {
@@ -289,7 +303,6 @@ function Set-LACloudLicenseV2 {
                 }
             }
             $hashRem.GetEnumerator() | ForEach-Object { 
-                Write-Host "IN GET ENUMERATOR!!!!!!!"
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 if ($_.name -in $userLicense.skupartnumber) {
@@ -357,7 +370,6 @@ function Set-LACloudLicenseV2 {
                     $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
-                  
             }
         }
         if ($SwapSkus) {
@@ -376,11 +388,18 @@ function Set-LACloudLicenseV2 {
                     $dest = $_.serviceplans.serviceplanname
                     $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $f2uSku.$SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
                     if ($source) {
+                        if ($WhileSwapIgnoreSourceOptions) {
+                            [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $f2uSku.$SwapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                            if ($sourceIgnore) {
+                                $sourceIgnore = $sourceIgnore | % {$f2uOpt[($_).split("*")[1]]}
+                                $source = $source | Where {$_ -notcontains $sourceIgnore}
+                            }
+                        }
                         $destarray = Get-UniqueProducts $dest
                         $sourcearray = Get-UniqueProducts $source
                         $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
-                        $options2swap
+                        Write-Verbose "$($user.UserPrincipalName) Sku: $($f2uSku.$swapdest) Options: $options2swap "
                         $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
@@ -394,6 +413,37 @@ function Set-LACloudLicenseV2 {
                     else {
                         Write-Verbose "User: $($user.UserPrincipalName) does not have source Sku:  $($f2uSku.$SwapSource), no changes will be made to this user"
                     }
+                }
+            }
+        }
+        # Template mode - applies options to any Skus used in this template - will not respect existing Options (wipes them out)
+        if ($template) {
+            $hashAdd = @{}
+            for ($i = 0; $i -lt $template.count; $i++) {
+                if ($template[$i]) {
+                    if ($hashAdd.containskey($f2uSku[$template[$i].split("*")[0]])) {
+                        $hashAdd.($f2uSku[$template[$i].split("*")[0]]) += $f2uOpt[$template[$i].split("*")[1]]
+                    }
+                    else {
+                        $hashAdd[$f2uSku[$template[$i].split("*")[0]]] = @($f2uOpt[$template[$i].split("*")[1]])
+                    }
+                }
+            }
+            $hashAdd.GetEnumerator() | ForEach-Object { 
+                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
+                # User already has Sku
+                if ($_.name -in $userLicense.skupartnumber) {
+                    $enabled = [pscustomobject]$_.Value
+                    Write-Verbose "Only options that will be applied for Sku $($_.key) : $enabled "
+                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
+                    Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
+                }
+                # User does not have Sku yet
+                else {
+                    $enabled = [pscustomobject]$_.Value
+                    Write-Verbose "User does not have SKU, adding Sku with options: $enabled "
+                    $licensesToAssign = Set-SkuChange -addTheOptions -skus $_.name -options $enabled
+                    Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
             }
         }

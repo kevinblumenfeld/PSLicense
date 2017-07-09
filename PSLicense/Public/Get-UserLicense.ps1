@@ -1,29 +1,15 @@
-function Get-CloudSkuTable { 
-    <#
-.Synopsis
-   Short description
-.DESCRIPTION
-   Long description
-.EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
-#>
+function Get-UserLicense {
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param
     (
-        [Parameter(Mandatory = $false)]
-        [switch] $sourceIgnore,
-        
-        [Parameter(Mandatory = $false)]
-        [string] $sourceSku
-        
+        [Parameter(Mandatory = $true)]
+        $user
     )
 
+    # Begin Block
     Begin {
-        $resultArray = @()
-    }
-    Process {
-        # Define Hashtables for lookup 
+
+        # Friendly 2 Ugly hashtable Lookups
         $Sku = @{ 
             "ATP_ENTERPRISE"                     = "Exchange Online ATP";
             "AX_ENTERPRISE_USER"                 = "AX ENTERPRISE USER";
@@ -202,37 +188,24 @@ function Get-CloudSkuTable {
             "YAMMER_ENTERPRISE"              = "Yammer Enterprise";
             "YAMMER_MIDSIZE"                 = "Yammer"
         }
-        
-        # Get a list of all Licenses that exist in the tenant 
-        if ($sourceIgnore) {
-            $licenses = Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $sourceSku}
-        }
-        else {
-            $licenses = Get-AzureADSubscribedSku
-        }
- 
-        # Loop through all License types found in the tenant 
-        foreach ($license in $licenses) {     
-            foreach ($row in $($license.ServicePlans.serviceplanname)) { 
-                $table = [ordered]@{}
-                if ($sku[$($license.SkuPartNumber)]) {
-                    $table['Sku'] = $sku[$license.SkuPartNumber]
-                }
-                else {
-                    $table['Sku'] = $license.SkuPartNumber
-                }
-                if ($plans[$row]) {
-                    $table['Plan'] = $plans[$row]
-                }
-                else {
-                    $table['Plan'] = $row
-                }
-                $resultArray += [psCustomObject]$table 
-            } 
-        }              
     }
+
+    Process {
+        # Define Arrays
+        $resultArray = @() 
+        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $user  
+        # for ($i = 0;$i -lt $userlicense.count;$i++) {
+        foreach ($ul in $userLicense) {
+            $uLicHash = [ordered]@{}
+            $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+            foreach ($u in $ul.serviceplans) {
+                $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                $uLicHash['Status'] = $u.ProvisioningStatus
+                $resultArray += [pscustomobject]$uLicHash
+            }
+        }    
+    } 
     End {
-        $array = $resultArray | ForEach-Object { '{0}*{1}' -f $_.Sku, $_.Plan }
-        $array
+        $resultArray
     }
 }
