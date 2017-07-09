@@ -336,10 +336,22 @@ function Set-LACloudLicenseV2 {
                         $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
                         Write-Verbose "$($user.UserPrincipalName) Sku: $($f2uSku.$swapdest) Options: $options2swap "
-                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
+                        if ($f2uSku.$swapdest) {
+                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
+                        }
+                        else {
+                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $swapdest -options $options2swap
+                        }
+                        
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$SwapSource
+                            if ($f2uSku.$SwapSource) {
+                                $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$SwapSource
+                            }
+                            else {
+                                $licensesToAssign = Set-SkuChange -remove -skus $SwapSource
+                            }
+                            
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
                         }
                         catch {
@@ -355,9 +367,16 @@ function Set-LACloudLicenseV2 {
         # Remove Sku(s)
         if ($skusToRemove) {
             Foreach ($removeSku in $skusToRemove) {
-                if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                    $removeSkuGroup += $f2uSku.$removeSku 
-                } 
+                if ($f2uSku.$removeSku) {
+                    if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $removeSkuGroup += $f2uSku.$removeSku 
+                    } 
+                }
+                else {
+                    if ($removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $removeSkuGroup += $removeSku 
+                    } 
+                }
             }
             if ($removeSkuGroup) {
                 Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
@@ -424,12 +443,22 @@ function Set-LACloudLicenseV2 {
         # Add Sku(s).  If user has Sku already, all options will be added        
         if ($skusToAdd) {
             Foreach ($addSku in $skusToAdd) {
-                if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                    $addSkuGroup += $f2uSku.$addSku 
-                } 
-                if ($f2uSku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                    $addAlreadySkuGroup += $f2uSku.$addSku
-                } 
+                if ($f2uSku.$addSku) {
+                    if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addSkuGroup += $f2uSku.$addSku 
+                    } 
+                    if ($f2uSku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addAlreadySkuGroup += $f2uSku.$addSku
+                    } 
+                }
+                else {
+                    if ($addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addSkuGroup += $addSku 
+                    } 
+                    if ($addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addAlreadySkuGroup += $addSku
+                    } 
+                }
             }
             # Add fresh Sku(s)
             if ($addSkuGroup) {
@@ -449,11 +478,33 @@ function Set-LACloudLicenseV2 {
             $hashAdd = @{}
             for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
                 if ($optionsToAdd[$i]) {
-                    if ($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]])) {
-                        $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
+                    if (($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]]) -or ($hashAdd.containskey($optionsToAdd[$i].split("*")[0])))) {
+                        if (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
+                            $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
+                        }
+                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
+                            $hashAdd.($optionsToAdd[$i].split("*")[0]) += ($optionsToAdd[$i].split("*")[1])
+                        }
+                        elseif (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
+                            $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += ($optionsToAdd[$i].split("*")[1])
+                        }
+                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
+                            $hashAdd.($optionsToAdd[$i].split("*")[0]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
+                        }
                     }
                     else {
-                        $hashAdd[$f2uSku[$optionsToAdd[$i].split("*")[0]]] = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                        if (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
+                            $hashAdd[$f2uSku[$optionsToAdd[$i].split("*")[0]]] = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                        }
+                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
+                            $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($optionsToAdd[$i].split("*")[1])
+                        }
+                        elseif (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
+                            $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($optionsToAdd[$i].split("*")[1])
+                        }
+                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
+                            $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                        }
                     }
                 }
             }
@@ -478,18 +529,40 @@ function Set-LACloudLicenseV2 {
         }
         # Template mode - applies options to any Skus used in this template - will not respect existing Options (wipes them out)
         if ($template) {
-            $hashAdd = @{}
+            $hashTemplate = @{}
             for ($i = 0; $i -lt $template.count; $i++) {
                 if ($template[$i]) {
-                    if ($hashAdd.containskey($f2uSku[$template[$i].split("*")[0]])) {
-                        $hashAdd.($f2uSku[$template[$i].split("*")[0]]) += $f2uOpt[$template[$i].split("*")[1]]
+                    if (($hashTemplate.containskey($f2uSku[$template[$i].split("*")[0]]) -or ($hashTemplate.containskey($template[$i].split("*")[0])))) {
+                        if (($f2uSku[$template[$i].split("*")[0]]) -and ($f2uOpt[$template[$i].split("*")[1]])) {
+                            $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) += $f2uOpt[$template[$i].split("*")[1]]
+                        }
+                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
+                            $hashTemplate.($template[$i].split("*")[0]) += ($template[$i].split("*")[1])
+                        }
+                        elseif (($f2uSku[$template[$i].split("*")[0]]) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
+                            $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) += ($template[$i].split("*")[1])
+                        }
+                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and ($f2uOpt[$template[$i].split("*")[1]])) {
+                            $hashTemplate.($template[$i].split("*")[0]) += $f2uOpt[$template[$i].split("*")[1]]
+                        }
                     }
                     else {
-                        $hashAdd[$f2uSku[$template[$i].split("*")[0]]] = @($f2uOpt[$template[$i].split("*")[1]])
+                        if (($f2uSku[$template[$i].split("*")[0]]) -and ($f2uOpt[$template[$i].split("*")[1]])) {
+                            $hashTemplate[$f2uSku[$template[$i].split("*")[0]]] = @($f2uOpt[$template[$i].split("*")[1]])
+                        }
+                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
+                            $hashTemplate.($template[$i].split("*")[0]) = @($template[$i].split("*")[1])
+                        }
+                        elseif (($f2uSku[$template[$i].split("*")[0]]) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
+                            $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) = @($template[$i].split("*")[1])
+                        }
+                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and ($f2uOpt[$template[$i].split("*")[1]])) {
+                            $hashTemplate.($template[$i].split("*")[0]) = @($f2uOpt[$template[$i].split("*")[1]])
+                        }
                     }
                 }
             }
-            $hashAdd.GetEnumerator() | ForEach-Object { 
+            $hashTemplate.GetEnumerator() | ForEach-Object { 
                 Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 $sKey = $_.key

@@ -24,7 +24,7 @@ function Get-CloudSkuTable {
     }
     Process {
         # Define Hashtables for lookup 
-        $Sku = @{ 
+        $u2fSku = @{ 
             "ATP_ENTERPRISE"                     = "Exchange Online ATP";
             "AX_ENTERPRISE_USER"                 = "AX ENTERPRISE USER";
             "AX_SANDBOX_INSTANCE_TIER2"          = "AX_SANDBOX_INSTANCE_TIER2";
@@ -102,7 +102,7 @@ function Get-CloudSkuTable {
             "YAMMER_ENTERPRISE"                  = "Yammer Enterprise";
             "YAMMER_MIDSIZE"                     = "Yammer Midsize"
         } 
-        $plans = @{
+        $u2fOpt = @{
             "AAD_PREMIUM"                    = "Azure Active Directory Premium Plan 1";
             "AAD_PREMIUM_P2"                 = "Azure Active Directory Premium P2";
             "ADALLOM_S_O365"                 = "Office 365 Advanced Security Management";
@@ -215,14 +215,14 @@ function Get-CloudSkuTable {
         foreach ($license in $licenses) {     
             foreach ($row in $($license.ServicePlans.serviceplanname)) { 
                 $table = [ordered]@{}
-                if ($sku[$($license.SkuPartNumber)]) {
-                    $table['Sku'] = $sku[$license.SkuPartNumber]
+                if ($u2fSku[$($license.SkuPartNumber)]) {
+                    $table['Sku'] = $u2fSku[$license.SkuPartNumber]
                 }
                 else {
                     $table['Sku'] = $license.SkuPartNumber
                 }
-                if ($plans[$row]) {
-                    $table['Plan'] = $plans[$row]
+                if ($u2fOpt[$row]) {
+                    $table['Plan'] = $u2fOpt[$row]
                 }
                 else {
                     $table['Plan'] = $row

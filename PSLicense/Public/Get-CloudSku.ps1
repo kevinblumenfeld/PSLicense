@@ -14,7 +14,7 @@ function Get-CloudSku {
     }
     Process {
         # Define Hashtables for lookup 
-        $Sku = @{ 
+        $u2fSku = @{ 
             "AX_ENTERPRISE_USER"                 = "AX ENTERPRISE USER";
             "AX_SELF-SERVE_USER"                 = "AX SELF-SERVE USER";
             "AX_SANDBOX_INSTANCE_TIER2"          = "AX_SANDBOX_INSTANCE_TIER2";
@@ -98,9 +98,15 @@ function Get-CloudSku {
  
         # Loop through all License types found in the tenant 
         $table = [ordered]@{}
-        foreach ($license in $licenses) {     
-            $table['License'] = $Sku[$license]
-            $resultArray += [psCustomObject]$table
+        foreach ($license in $licenses) {
+            if ($u2fSku[$license]) {
+                $table['License'] = $u2fSku[$license]
+                $resultArray += [psCustomObject]$table
+            }     
+            else {
+                $table['License'] = $license
+                $resultArray += [psCustomObject]$table
+            }
         }
     } 
     End {
