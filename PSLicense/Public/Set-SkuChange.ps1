@@ -70,6 +70,7 @@
             $license.DisabledPlans = $SkuFeaturesToDisable.ServicePlanId
             $licensesToAssign = New-Object -TypeName Microsoft.Open.AzureAD.Model.AssignedLicenses
             $licensesToAssign.AddLicenses += $license
+            $licensesToAssign.RemoveLicenses = @()
         }
     }
     # Remove Option(s) only if user has the appropriate Sku assigned
@@ -83,6 +84,7 @@
             $License.DisabledPlans = $SkuFeaturesToDisable.ServicePlanId
             $license.SkuId = $StandardLicense.SkuId
             $licensesToAssign.AddLicenses += $license
+            $licensesToAssign.RemoveLicenses = @()
         }
     }
     $licensesToAssign 

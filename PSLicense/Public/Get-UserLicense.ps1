@@ -3,7 +3,10 @@ function Get-UserLicense {
     Param
     (
         [Parameter(Mandatory = $true)]
-        $user
+        $user,
+
+        [Parameter(Mandatory = $true)]
+        [switch] $notDisabled
     )
 
     # Begin Block
@@ -191,19 +194,32 @@ function Get-UserLicense {
     }
 
     Process {
-        # Define Arrays
         $resultArray = @() 
-        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $user  
-        # for ($i = 0;$i -lt $userlicense.count;$i++) {
-        foreach ($ul in $userLicense) {
-            $uLicHash = [ordered]@{}
-            $uLicHash['Sku'] = $sku.($ul.skupartnumber)
-            foreach ($u in $ul.serviceplans) {
-                $uLicHash['Option'] = $plans.($u.Serviceplanname)
-                $uLicHash['Status'] = $u.ProvisioningStatus
-                $resultArray += [pscustomobject]$uLicHash
-            }
-        }    
+        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $user
+        if ($notDisabled) {
+            foreach ($ul in $userLicense) {
+                $uLicHash = [ordered]@{}
+                $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+                foreach ($u in $ul.serviceplans) {
+                    if ($u.ProvisioningStatus -ne 'Disabled') {
+                        $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                        $uLicHash['Status'] = $u.ProvisioningStatus
+                        $resultArray += [pscustomobject]$uLicHash   
+                    }
+                }
+            }  
+        }
+        else {
+            foreach ($ul in $userLicense) {
+                $uLicHash = [ordered]@{}
+                $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+                foreach ($u in $ul.serviceplans) {
+                    $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                    $uLicHash['Status'] = $u.ProvisioningStatus
+                    $resultArray += [pscustomobject]$uLicHash
+                }
+            }  
+        }
     } 
     End {
         $resultArray

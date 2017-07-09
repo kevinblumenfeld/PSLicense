@@ -30,7 +30,10 @@ function Set-LACloudLicenseV2 {
         [switch] $TemplateMode,
 
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicenses        
+        [switch] $InspectUserLicenses,      
+
+        [Parameter(Mandatory = $false)]
+        [switch] $InspectUserLicensesNotDisabled        
         
     )
 
@@ -266,6 +269,9 @@ function Set-LACloudLicenseV2 {
         if ($InspectUserLicenses) {
             (. Get-UserLicense -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
+        if ($InspectUserLicensesNotDisabled) {
+            (. Get-UserLicense -notDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
 
         # Set user-specific variables
         $user = Get-AzureADUser -ObjectId $_.userprincipalname
@@ -307,7 +313,7 @@ function Set-LACloudLicenseV2 {
                 # User already has Sku
                 if ($_.name -in $userLicense.skupartnumber) {
                     $disabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -match $_.Name}).serviceplans | where {$_.provisioningStatus -eq 'Disabled'}).serviceplanname)
-                    Write-Verbose "Options to remove + options currently disabled: $disabled "
+                    Write-Verbose "Options from Sku: $($_.key) to remove + options currently disabled: $disabled "
                     $licensesToAssign = Set-SkuChange -removeTheOptions -skus $_.name -options $disabled
                     Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
                 }
