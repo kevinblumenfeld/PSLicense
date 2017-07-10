@@ -33,10 +33,10 @@ function Set-LACloudLicenseV2 {
         [switch] $InspectUserLicenses,      
 
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicensesNotDisabled,        
+        [switch] $InspectUserLicensesEnabled,        
         
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicensesOnlyDisabled,        
+        [switch] $InspectUserLicensesDisabled,        
                 
         [Parameter(Mandatory = $false)]
         [switch] $DisplayAllSkusAndOptions        
@@ -300,10 +300,10 @@ function Set-LACloudLicenseV2 {
         if ($InspectUserLicenses) {
             (. Get-UserLicense -user -allLicenses $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
-        if ($InspectUserLicensesNotDisabled) {
+        if ($InspectUserLicensesEnabled) {
             (. Get-UserLicense -notDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
-        if ($InspectUserLicensesOnlyDisabled) {
+        if ($InspectUserLicensesDisabled) {
             (. Get-UserLicense -onlyDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
 
