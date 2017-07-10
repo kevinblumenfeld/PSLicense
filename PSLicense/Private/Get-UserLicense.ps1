@@ -9,7 +9,11 @@ function Get-UserLicense {
         [switch] $notDisabled,
 
         [Parameter(Mandatory = $false)]
-        [switch] $onlyDisabled
+        [switch] $onlyDisabled,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $allLicenses
+
     )
 
     # Begin Block
@@ -224,7 +228,7 @@ function Get-UserLicense {
                 }
             }  
         }
-        else {
+       if ($allLicenses) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
                 $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
@@ -237,6 +241,6 @@ function Get-UserLicense {
         }
     } 
     End {
-        $resultArray
+        $resultArray 
     }
 }
