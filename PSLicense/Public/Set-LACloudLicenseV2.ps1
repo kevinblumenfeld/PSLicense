@@ -58,183 +58,14 @@ function Set-LACloudLicenseV2 {
         
         # Friendly 2 Ugly hashtable Lookups
         $f2uSku = @{
-            "AX ENTERPRISE USER"                               = "AX_ENTERPRISE_USER";
-            "AX SELF-SERVE USER"                               = "AX_SELF-SERVE_USER";
-            "AX_SANDBOX_INSTANCE_TIER2"                        = "AX_SANDBOX_INSTANCE_TIER2";
-            "AX_TASK_USER"                                     = "AX_TASK_USER";
-            "Azure Active Directory Rights Management"         = "RMS_S_ENTERPRISE";
-            "Azure Rights Management Services Ad-hoc"          = "RIGHTSMANAGEMENT_ADHOC";
-            "Dynamics CRM Online Plan 2"                       = "CRMPLAN2";
-            "Enterprise Mobility + Security E3"                = "EMS";
-            "Enterprise Mobility + Security E5"                = "EMSPREMIUM";
-            "ENTERPRISEPACK_B_PILOT"                           = "ENTERPRISEPACK_B_PILOT";
-            "Exch Online Plan 2 for Faculty"                   = "EXCHANGEENTERPRISE_FACULTY";
-            "Exchange Online (Plan 1)"                         = "EXCHANGE_L_STANDARD";
-            "Exchange Online ATP"                              = "ATP_ENTERPRISE";
-            "Exchange Online Plan 1"                           = "EXCHANGESTANDARD";
-            "Exchange Online Plan 2 S"                         = "EXCHANGE_S_ENTERPRISE";
-            "Exchange Online Plan 2"                           = "EXCHANGEENTERPRISE";
-            "Information Rights Management for Faculty"        = "RIGHTSMANAGEMENT_STANDARD_FACULTY";
-            "Information Rights Management for Students"       = "RIGHTSMANAGEMENT_STANDARD_STUDENT";
-            "Intune (Volume License)"                          = "INTUNE_A_VL";
-            "Lync Online (Plan 1)"                             = "MCOLITE";
-            "Microsoft Dynamics CRM Online Additional Storage" = "CRMSTORAGE";
-            "Microsoft Flow Free"                              = "FLOW_FREE";
-            "Microsoft Imagine Academy"                        = "IT_ACADEMY_AD";
-            "Microsoft PowerApps and Logic flows"              = "POWERAPPS_INDIVIDUAL_USER";
-            "Microsoft Stream"                                 = "STREAM";
-            "MICROSOFT_BUSINESS_CENTER"                        = "MICROSOFT_BUSINESS_CENTER";
-            "O365 Education E1 for Students"                   = "STANDARDWOFFPACK_STUDENT";
-            "O365 Education for Faculty"                       = "STANDARDWOFFPACK_IW_FACULTY";
-            "O365 Education for Students"                      = "STANDARDWOFFPACK_IW_STUDENT";
-            "Office 365 (Plan A1) for Students"                = "STANDARDPACK_STUDENT";
-            "Office 365 (Plan E3)"                             = "ENTERPRISEPACKLRG";
-            "Office 365 Education E4 for Faculty"              = "ENTERPRISEWITHSCAL_FACULTY";
-            "Office 365 Education E4 for Students"             = "ENTERPRISEWITHSCAL_STUDENT";
-            "Office 365 Enterprise E1"                         = "STANDARDPACK";
-            "Office 365 Enterprise E2"                         = "STANDARDWOFFPACK";
-            "Office 365 Enterprise E3 without ProPlus Add-on"  = "ENTERPRISEPACKWITHOUTPROPLUS";
-            "Office 365 Enterprise E3"                         = "ENTERPRISEPACK";
-            "Office 365 Enterprise E4"                         = "ENTERPRISEWITHSCAL";
-            "Office 365 Enterprise E5"                         = "ENTERPRISEPREMIUM";
-            "Office 365 Enterprise K1 with Yammer"             = "DESKLESSPACK_YAMMER";
-            "Office 365 Enterprise K1 without Yammer"          = "DESKLESSPACK";
-            "Office 365 Enterprise K2"                         = "DESKLESSWOFFPACK";
-            "Office 365 Midsize Business"                      = "MIDSIZEPACK";
-            "Office 365 Plan A2 for Faculty"                   = "STANDARDWOFFPACKPACK_FACULTY";
-            "Office 365 Plan A2 for Students"                  = "STANDARDWOFFPACKPACK_STUDENT";
-            "Office 365 Plan A3 for Faculty"                   = "ENTERPRISEPACK_FACULTY";
-            "Office 365 Plan A3 for Students"                  = "ENTERPRISEPACK_STUDENT";
-            "Office 365 ProPlus for Faculty"                   = "OFFICESUBSCRIPTION_FACULTY";
-            "Office 365 Small Business Premium"                = "LITEPACK_P2";
-            "Office Online STD"                                = "WACSHAREPOINTSTD";
-            "Office Online"                                    = "SHAREPOINTWAC";
-            "Office ProPlus"                                   = "OFFICE_PRO_PLUS_SUBSCRIPTION_SMBIZ";
-            "Power BI for Office 365 Individual"               = "POWER_BI_INDIVIDUAL_USER";
-            "Power BI for Office 365 Standalone"               = "POWER_BI_STANDALONE";
-            "Power BI for Office 365 Standard"                 = "POWER_BI_STANDARD";
-            "POWER_BI_PRO"                                     = "POWER_BI_PRO";
-            "Project Lite"                                     = "PROJECTESSENTIALS";
-            "Project Online for Faculty Plan 1"                = "PROJECTONLINE_PLAN_1_FACULTY";
-            "Project Online for Faculty Plan 2"                = "PROJECTONLINE_PLAN_2_FACULTY";
-            "Project Online for Students Plan 1"               = "PROJECTONLINE_PLAN_1_STUDENT";
-            "Project Online for Students Plan 2"               = "PROJECTONLINE_PLAN_2_STUDENT";
-            "Project Online Premium"                           = "PROJECTPREMIUM";
-            "Project Online Professional"                      = "PROJECTPROFESSIONAL";
-            "Project Online with Project for Office 365"       = "PROJECTONLINE_PLAN_1";
-            "Project Pro for Office 365"                       = "PROJECTCLIENT";
-            "PROJECT_MADEIRA_PREVIEW_IW"                       = "PROJECT_MADEIRA_PREVIEW_IW_SKU";
-            "Secure Productive Enterprise E3"                  = "SPE_E3";
-            "SharePoint Online (Plan 1) Lite"                  = "SHAREPOINTLITE";
-            "SharePoint Online (Plan 1) MidMarket"             = "SHAREPOINTENTERPRISE_MIDMARKET";
-            "SharePoint Online (Plan 2)"                       = "SHAREPOINTENTERPRISE";
-            "SharePoint Online Plan 1"                         = "SHAREPOINTSTANDARD";
-            "STANDARD_B_PILOT"                                 = "STANDARD_B_PILOT";
-            "STANDARDPACK_FACULTY"                             = "STANDARDPACK_FACULTY";
-            "Visio Pro for Office 365"                         = "VISIOCLIENT";
-            "Yammer Enterprise"                                = "YAMMER_ENTERPRISE";
-            "Yammer Midsize"                                   = "YAMMER_MIDSIZE"
+            "AX ENTERPRISE USER" = "AX_ENTERPRISE_USER"
+
         }
 
         $f2uOpt = @{
-            "Azure Active Directory Premium P2"                                 = "AAD_PREMIUM_P2";
-            "Azure Active Directory Premium Plan 1"                             = "AAD_PREMIUM";
-            "Azure Information Protection Plan 1"                               = "RMS_S_PREMIUM";
-            "Azure Information Protection Premium P2"                           = "RMS_S_PREMIUM2";
-            "Azure Multi-Factor Authentication"                                 = "MFA_PREMIUM";
-            "Azure Rights Management"                                           = "RMS_S_ENTERPRISE";
-            "CRM for Partners"                                                  = "CRMIUR";
-            "CRM Online"                                                        = "CRMSTANDARD";
-            "CRM Test Instance"                                                 = "CRMTESTINSTANCE";
-            "Customer Lockbox"                                                  = "LOCKBOX_ENTERPRISE";
-            "Exchange Foundation for certain SKUs"                              = "EXCHANGE_S_FOUNDATION";
-            "Exchange Kiosk"                                                    = "EXCHANGE_S_DESKLESS_GOV";
-            "Exchange Online (Plan 1) for Students"                             = "EXCHANGESTANDARD_STUDENT";
-            "Exchange Online (Plan 1)"                                          = "EXCHANGE_S_STANDARD_MIDMARKET";
-            "Exchange Online (Plan 2) Ent"                                      = "EXCHANGE_S_ENTERPRISE";
-            "Exchange Online (Plan 2)"                                          = "EXCHANGE_S_STANDARD";
-            "Exchange Online Advanced Threat Protection"                        = "ATP_ENTERPRISE";
-            "Exchange Online Archiving Govt"                                    = "EXCHANGE_S_ARCHIVE_ADDON_GOV";
-            "Exchange Online Archiving"                                         = "EXCHANGEARCHIVE";
-            "Exchange Online Kiosk"                                             = "EXCHANGE_S_DESKLESS";
-            "Exchange Online POP"                                               = "EXCHANGETELCO";
-            "Exchange Online Protection for Faculty"                            = "EOP_ENTERPRISE_FACULTY";
-            "Exchange Online Protection"                                        = "EOP_ENTERPRISE";
-            "Exchange Plan 2G"                                                  = "EXCHANGE_S_ENTERPRISE_GOV";
-            "Flow for Office 365"                                               = "FLOW_O365_P3";
-            "Flow"                                                              = "FLOW_O365_P2";
-            "Intune for Office 365"                                             = "INTUNE_A";
-            "Lync Online (Plan 1)"                                              = "MCOSTANDARD_MIDMARKET";
-            "Lync Online (Plan 3)"                                              = "MCVOICECONF";
-            "Lync Plan 2G"                                                      = "MCOSTANDARD_GOV";
-            "Microsoft Business Center"                                         = "MICROSOFT_BUSINESS_CENTER";
-            "Microsoft Cloud App Security"                                      = "ADALLOM_S_STANDALONE";
-            "Microsoft Dynamics CRM Online Additional Storage"                  = "CRMSTORAGE";
-            "Microsoft Dynamics Marketing Sales Collaboration"                  = "MDM_SALES_COLLABORATION";
-            "Microsoft Forms (Plan E3)"                                         = "FORMS_PLAN_E3";
-            "Microsoft Forms (Plan E5)"                                         = "FORMS_PLAN_E5";
-            "Microsoft MyAnalytics"                                             = "EXCHANGE_ANALYTICS";
-            "Microsoft Office 365 (Plan A1) for Faculty"                        = "STANDARDPACK_FACULTY";
-            "Microsoft Office 365 (Plan A1) for Students"                       = "STANDARDPACK_STUDENT";
-            "Microsoft Office 365 (Plan A2) for Students"                       = "STANDARDWOFFPACK_STUDENT";
-            "Microsoft Office 365 (Plan E1)"                                    = "STANDARDPACK";
-            "Microsoft Office 365 (Plan E2)"                                    = "STANDARDWOFFPACK";
-            "Microsoft Office 365 (Plan G1) for Government"                     = "STANDARDPACK_GOV";
-            "Microsoft Office 365 (Plan G2) for Government"                     = "STANDARDWOFFPACK_GOV";
-            "Microsoft Office 365 (Plan G3) for Government"                     = "ENTERPRISEPACK_GOV";
-            "Microsoft Office 365 (Plan G4) for Government"                     = "ENTERPRISEWITHSCAL_GOV";
-            "Microsoft Office 365 (Plan K1) for Government"                     = "DESKLESSPACK_GOV";
-            "Microsoft Office 365 (Plan K2) for Government"                     = "ESKLESSWOFFPACK_GOV";
-            "Microsoft Office 365 Exchange Online (Plan 1) only for Government" = "EXCHANGESTANDARD_GOV";
-            "Microsoft Office 365 Exchange Online (Plan 2) only for Government" = "EXCHANGEENTERPRISE_GOV";
-            "Microsoft Planner"                                                 = "PROJECTWORKMANAGEMENT";
-            "Microsoft Social Listening Professional"                           = "NBPROFESSIONALFORCRM";
-            "Microsoft StaffHub"                                                = "Deskless";
-            "Microsoft Stream for O365 E3 SKU"                                  = "STREAM_O365_E3";
-            "Microsoft Stream for O365 E5 SKU"                                  = "STREAM_O365_E5";
-            "Microsoft Teams"                                                   = "TEAMS1";
-            "Mobile Device Management for Office 365"                           = "INTUNE_O365";
-            "Office 365 (Plan P1)"                                              = "LITEPACK";
-            "Office 365 Advanced eDiscovery"                                    = "EQUIVIO_ANALYTICS";
-            "Office 365 Advanced Security Management"                           = "ADALLOM_S_O365";
-            "Office 365 Education E1 for Faculty"                               = "STANDARDWOFFPACK_FACULTY";
-            "Office 365 Education for Faculty"                                  = "STANDARDWOFFPACK_IW_FACULTY";
-            "Office 365 Education for Students"                                 = "STANDARDWOFFPACK_IW_STUDENT";
-            "Office 365 ProPlus"                                                = "OFFICESUBSCRIPTION";
-            "Office 365 Threat Intelligence"                                    = "THREAT_INTELLIGENCE";
-            "Office Online for Government"                                      = "SHAREPOINTWAC_GOV";
-            "Office Online"                                                     = "SHAREPOINTWAC";
-            "Office ProPlus Student Benefit"                                    = "OFFICESUBSCRIPTION_STUDENT";
-            "Office ProPlus"                                                    = "OFFICESUBSCRIPTION_GOV";
-            "OneDrive Pack"                                                     = "WACONEDRIVESTANDARD";
-            "OneDrive"                                                          = "ONEDRIVESTANDARD";
-            "Power BI Information Services"                                     = "SQL_IS_SSIM";
-            "Power BI Pro"                                                      = "BI_AZURE_P2";
-            "Power BI Reporting and Analytics"                                  = "BI_AZURE_P1";
-            "PowerApps for Office 365"                                          = "POWERAPPS_O365_P3";
-            "PowerApps"                                                         = "POWERAPPS_O365_P2";
-            "Project Lite"                                                      = "PROJECT_ESSENTIALS";
-            "Project Online (Plan 1)"                                           = "PROJECTONLINE_PLAN_1";
-            "Project Online (Plan 2)"                                           = "PROJECTONLINE_PLAN_2";
-            "Project Pro for Office 365"                                        = "PROJECT_CLIENT_SUBSCRIPTION";
-            "SharePoint Online (Plan 1)"                                        = "SHAREPOINTENTERPRISE_MIDMARKET";
-            "SharePoint Online (Plan 2) Project"                                = "SHAREPOINT_PROJECT";
-            "SharePoint Online (Plan 2)"                                        = "SHAREPOINTENTERPRISE";
-            "SharePoint Online Kiosk Gov"                                       = "SHAREPOINTDESKLESS_GOV";
-            "SharePoint Online Kiosk"                                           = "SHAREPOINTDESKLESS";
-            "SharePoint Online Partner Access"                                  = "SHAREPOINTPARTNER";
-            "SharePoint Online Storage"                                         = "SHAREPOINTSTORAGE";
-            "SharePoint Plan 2G"                                                = "SHAREPOINTENTERPRISE_GOV";
-            "Skype for Business Cloud PBX"                                      = "MCOEV";
-            "Skype for Business Online (Plan 2)"                                = "MCOSTANDARD";
-            "Skype for Business PSTN Conferencing"                              = "MCOMEETADV";
-            "Sway"                                                              = "SWAY";
-            "Visio Pro for Office 365 Subscription"                             = "VISIO_CLIENT_SUBSCRIPTION";
-            "Visio Pro for Office 365"                                          = "VISIOCLIENT";
-            "Windows 10 Enterprise E3"                                          = "WIN10_PRO_ENT_SUB";
-            "Windows Azure Active Directory Rights Management"                  = "RMS_S_ENTERPRISE_GOV";
-            "Yammer Enterprise"                                                 = "YAMMER_ENTERPRISE";
-            "Yammer"                                                            = "YAMMER_MIDSIZE"
+ 
+            "Microsoft MyAnalytics" = "EXCHANGE_ANALYTICS"
+     
         }
 
         # Based on Runtime switches, Out-GridView(s) are presented for user input
@@ -275,6 +106,8 @@ function Set-LACloudLicenseV2 {
         $enabled = @()
         $disabled = @()
         $sKey = @()
+        $sourceIgnore = @()
+        $source = @()
 
         if ($InspectUserLicenses) {
             (. Get-UserLicense -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
@@ -294,29 +127,99 @@ function Set-LACloudLicenseV2 {
         if ($SwapSkus) {
             if ($SwapSource -eq $swapDest) {
                 Write-Output "Source and Destination Skus are identical"
-                Write-Output "Source Sku: $($f2uSku.$SwapSource) and Destination Sku: $($f2uSku.$swapdest)"
+                Write-Output "Source Sku: $($f2uSku.$SwapSource) and Destination Sku: $($f2uSku.$swapdest) are identical."
                 Write-Output "Please choose a different Source or Destination Sku"                
                 Break
             }
-            (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $f2uSku.$swapdest}) | ForEach-Object {
-                if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
-                    Write-Output "Out of $($f2uSku.$swapdest) licenses.  Please allocate more then rerun."
-                    Break 
-                }
-                Else {
-                    $dest = $_.serviceplans.serviceplanname
-                    if ($f2uSku.$SwapSource) {
+            if ($userLicense.skupartnumber.Contains($swapSource)) {
+                if (($f2uSku.$swapdest) -and ($f2uSku.$SwapSource)) {
+                    (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $f2uSku.$swapdest}) | ForEach-Object {
+                        if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
+                            Write-Output "Out of $($f2uSku.$swapdest) licenses.  Please allocate more then rerun."
+                            Break 
+                        }
+                        $dest = $_.serviceplans.serviceplanname
                         $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $f2uSku.$SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
-                    }  
-                    else {
-                        $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
-                    }
-                    if ($source) {
-                        if ($WhileSwapIgnoreSourceOptions) {
-                            if ($f2uSku.$SwapSource) {
+                        if ($source) {
+                            if ($WhileSwapIgnoreSourceOptions) {
                                 [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $f2uSku.$SwapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
                             }
-                            else {
+                            if ($sourceIgnore) {
+                                $sourceIgnore = $sourceIgnore | % {
+                                    if ($f2uOpt[($_)]) {
+                                        $f2uOpt[($_).split("*")[1]]
+                                    }
+                                    else {
+                                        ($_).split("*")[1]
+                                    }
+                                } 
+                                $source = $source | Where {$sourceIgnore -notcontains $_}
+                            }
+                        }
+                        $destarray = Get-UniqueString $dest
+                        $sourcearray = Get-UniqueString $source
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $options2swap | % {$destarray[$_]}
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
+                        try {
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                            $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$SwapSource
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                        }
+                        catch {
+                            $_
+                        }
+                    }
+                }
+                if ((!($f2uSku.$swapdest)) -and ($f2uSku.$SwapSource)) {
+                    (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $swapdest}) | ForEach-Object {
+                        if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
+                            Write-Output "Out of $swapdest licenses.  Please allocate more then rerun."
+                            Break 
+                        }
+                        $dest = $_.serviceplans.serviceplanname
+                        $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $f2uSku.$SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
+                        if ($source) {
+                            if ($WhileSwapIgnoreSourceOptions) {
+                                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $f2uSku.$SwapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                            }
+                            if ($sourceIgnore) {
+                                $sourceIgnore = $sourceIgnore | % {
+                                    if ($f2uOpt[($_)]) {
+                                        $f2uOpt[($_).split("*")[1]]
+                                    }
+                                    else {
+                                        ($_).split("*")[1]
+                                    }
+                                } 
+                                $source = $source | Where {$sourceIgnore -notcontains $_}
+                            }
+                        }
+                        $destarray = Get-UniqueString $dest
+                        $sourcearray = Get-UniqueString $source
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $options2swap | % {$destarray[$_]}
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $swapdest -options $options2swap
+                        try {
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                            $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$SwapSource
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                        }
+                        catch {
+                            $_
+                        }
+                    }
+                }
+                if (($f2uSku.$swapdest) -and (!($f2uSku.$SwapSource))) {
+                    (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $f2uSku.$swapdest}) | ForEach-Object {
+                        if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
+                            Write-Output "Out of $($f2uSku.$swapdest) licenses.  Please allocate more then rerun."
+                            Break 
+                        }
+                        $dest = $_.serviceplans.serviceplanname
+                        $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
+                        if ($source) {
+                            if ($WhileSwapIgnoreSourceOptions) {
                                 [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $SwapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
                             }
                             if ($sourceIgnore) {
@@ -325,45 +228,73 @@ function Set-LACloudLicenseV2 {
                                         $f2uOpt[($_).split("*")[1]]
                                     }
                                     else {
-                                        $_
+                                        ($_).split("*")[1]
                                     }
-                                }
-                                $source = $source | Where {$_ -notcontains $sourceIgnore}
+                                } 
+                                $source = $source | Where {$sourceIgnore -notcontains $_}
                             }
                         }
-                        $destarray = Get-UniqueProducts $dest
-                        $sourcearray = Get-UniqueProducts $source
+                        $destarray = Get-UniqueString $dest
+                        $sourcearray = Get-UniqueString $source
                         $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
-                        Write-Verbose "$($user.UserPrincipalName) Sku: $($f2uSku.$swapdest) Options: $options2swap "
-                        if ($f2uSku.$swapdest) {
-                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
-                        }
-                        else {
-                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $swapdest -options $options2swap
-                        }
-                        
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapdest -options $options2swap
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            if ($f2uSku.$SwapSource) {
-                                $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$SwapSource
-                            }
-                            else {
-                                $licensesToAssign = Set-SkuChange -remove -skus $SwapSource
-                            }
-                            
+                            $licensesToAssign = Set-SkuChange -remove -skus $SwapSource
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
                         }
                         catch {
                             $_
                         }
                     }
-                    else {
-                        Write-Verbose "User: $($user.UserPrincipalName) does not have source Sku:  $($f2uSku.$SwapSource), no changes will be made to this user"
+                }
+                if ((!($f2uSku.$swapdest)) -and (!($f2uSku.$SwapSource))) {
+                    (Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $swapDest}) | ForEach-Object {
+                        if (($_.prepaidunits.enabled - $_.consumedunits) -lt "1") {
+                            Write-Output "Out of $swapdest licenses.  Please allocate more then rerun."
+                            Break 
+                        }
+                        $dest = $_.serviceplans.serviceplanname
+                        $source = ((Get-AzureADUserLicenseDetail -ObjectId $user.UserPrincipalName | Where {$_.skupartnumber -eq $SwapSource}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname
+                        if ($source) {
+                            if ($WhileSwapIgnoreSourceOptions) {
+                                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $SwapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                            }
+                            if ($sourceIgnore) {
+                                $sourceIgnore = $sourceIgnore | % {
+                                    if ($f2uOpt[($_)]) {
+                                        $f2uOpt[($_).split("*")[1]]
+                                    }
+                                    else {
+                                        ($_).split("*")[1]
+                                    }
+                                } 
+                                $source = $source | Where {$sourceIgnore -notcontains $_}
+                            }
+                        }
+                        $destarray = Get-UniqueString $dest
+                        $sourcearray = Get-UniqueString $source
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $options2swap | % {$destarray[$_]}
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $swapdest -options $options2swap
+                        try {
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                            $licensesToAssign = Set-SkuChange -remove -skus $SwapSource
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                        }
+                        catch {
+                            $_
+                        }
                     }
                 }
+                Write-Verbose "$($user.UserPrincipalName) Source: $SwapSource Dest: $swapDest SOURCE OPTIONS: $Source"
             }
-        }
+            else {
+                Write-Verbose "$($user.UserPrincipalName) does not have source Sku:  $SwapSource, no changes will be made to this user"
+            }
+        }   
+
         # Remove Sku(s)
         if ($skusToRemove) {
             Foreach ($removeSku in $skusToRemove) {
@@ -387,38 +318,55 @@ function Set-LACloudLicenseV2 {
                 Write-Verbose "$($_.userprincipalname) does not have any of the Skus requested for removal"
             }
         }
-
         # Remove Options.  Only if user is assigned Sku.
         if ($optionsToRemove) {
             $hashRem = @{}
             for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
                 if ($optionsToRemove[$i]) {
-                    if (($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]]) -or ($hashRem.containskey($optionsToRemove[$i].split("*")[0])))) {
-                        if (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
-                            $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
+                    if ($f2uSku[$optionsToRemove[$i].split("*")[0]]) {
+                        # FRIENDLY SKU TRACT 
+                        if ($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]])) {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += @($optionsToRemove[$i].split("*")[1])
+                            }
                         }
-                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
-                            $hashRem.($optionsToRemove[$i].split("*")[0]) += ($optionsToRemove[$i].split("*")[1])
-                        }
-                        elseif (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
-                            $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += ($optionsToRemove[$i].split("*")[1])
-                        }
-                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
-                            $hashRem.($optionsToRemove[$i].split("*")[0]) += $f2uOpt[$optionsToRemove[$i].split("*")[1]]
+                        else {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($optionsToRemove[$i].split("*")[1])
+                            }
                         }
                     }
+                    # UGLY SKU TRACT 
                     else {
-                        if (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
-                            $hashRem[$f2uSku[$optionsToRemove[$i].split("*")[0]]] = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                        if ($hashRem.containskey($optionsToRemove[$i].split("*")[0])) {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) += @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    EXISTING
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) += @($optionsToRemove[$i].split("*")[1])
+                            }
                         }
-                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
-                            $hashRem.($optionsToRemove[$i].split("*")[0]) = @($optionsToRemove[$i].split("*")[1])
-                        }
-                        elseif (($f2uSku[$optionsToRemove[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToRemove[$i].split("*")[1]]))) {
-                            $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($optionsToRemove[$i].split("*")[1])
-                        }
-                        elseif ((!($f2uSku[$optionsToRemove[$i].split("*")[0]])) -and ($f2uOpt[$optionsToRemove[$i].split("*")[1]])) {
-                            $hashRem.($optionsToRemove[$i].split("*")[0]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                        else {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    FRESH!
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) = @($optionsToRemove[$i].split("*")[1])
+                            }
                         }
                     }
                 }
@@ -478,32 +426,50 @@ function Set-LACloudLicenseV2 {
             $hashAdd = @{}
             for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
                 if ($optionsToAdd[$i]) {
-                    if (($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]]) -or ($hashAdd.containskey($optionsToAdd[$i].split("*")[0])))) {
-                        if (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
-                            $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
+                    if ($f2uSku[$optionsToAdd[$i].split("*")[0]]) {
+                        # FRIENDLY SKU TRACT 
+                        if ($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]])) {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += @($optionsToAdd[$i].split("*")[1])
+                            }
                         }
-                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
-                            $hashAdd.($optionsToAdd[$i].split("*")[0]) += ($optionsToAdd[$i].split("*")[1])
-                        }
-                        elseif (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
-                            $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += ($optionsToAdd[$i].split("*")[1])
-                        }
-                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
-                            $hashAdd.($optionsToAdd[$i].split("*")[0]) += $f2uOpt[$optionsToAdd[$i].split("*")[1]]
+                        else {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($optionsToAdd[$i].split("*")[1])
+                            }
                         }
                     }
+                    # UGLY SKU TRACT 
                     else {
-                        if (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
-                            $hashAdd[$f2uSku[$optionsToAdd[$i].split("*")[0]]] = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                        if ($hashAdd.containskey($optionsToAdd[$i].split("*")[0])) {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) += @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    EXISTING
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) += @($optionsToAdd[$i].split("*")[1])
+                            }
                         }
-                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
-                            $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($optionsToAdd[$i].split("*")[1])
-                        }
-                        elseif (($f2uSku[$optionsToAdd[$i].split("*")[0]]) -and (!($f2uOpt[$optionsToAdd[$i].split("*")[1]]))) {
-                            $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($optionsToAdd[$i].split("*")[1])
-                        }
-                        elseif ((!($f2uSku[$optionsToAdd[$i].split("*")[0]])) -and ($f2uOpt[$optionsToAdd[$i].split("*")[1]])) {
-                            $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                        else {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    FRESH!
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($optionsToAdd[$i].split("*")[1])
+                            }
                         }
                     }
                 }
@@ -532,32 +498,50 @@ function Set-LACloudLicenseV2 {
             $hashTemplate = @{}
             for ($i = 0; $i -lt $template.count; $i++) {
                 if ($template[$i]) {
-                    if (($hashTemplate.containskey($f2uSku[$template[$i].split("*")[0]]) -or ($hashTemplate.containskey($template[$i].split("*")[0])))) {
-                        if (($f2uSku[$template[$i].split("*")[0]]) -and ($f2uOpt[$template[$i].split("*")[1]])) {
-                            $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) += $f2uOpt[$template[$i].split("*")[1]]
+                    if ($f2uSku[$template[$i].split("*")[0]]) {
+                        # FRIENDLY SKU TRACT 
+                        if ($hashTemplate.containskey($f2uSku[$template[$i].split("*")[0]])) {
+                            if ($f2uOpt[$template[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) += @($f2uOpt[$template[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
+                                $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) += @($template[$i].split("*")[1])
+                            }
                         }
-                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
-                            $hashTemplate.($template[$i].split("*")[0]) += ($template[$i].split("*")[1])
-                        }
-                        elseif (($f2uSku[$template[$i].split("*")[0]]) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
-                            $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) += ($template[$i].split("*")[1])
-                        }
-                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and ($f2uOpt[$template[$i].split("*")[1]])) {
-                            $hashTemplate.($template[$i].split("*")[0]) += $f2uOpt[$template[$i].split("*")[1]]
+                        else {
+                            if ($f2uOpt[$template[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) = @($f2uOpt[$template[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
+                                $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) = @($template[$i].split("*")[1])
+                            }
                         }
                     }
+                    # UGLY SKU TRACT 
                     else {
-                        if (($f2uSku[$template[$i].split("*")[0]]) -and ($f2uOpt[$template[$i].split("*")[1]])) {
-                            $hashTemplate[$f2uSku[$template[$i].split("*")[0]]] = @($f2uOpt[$template[$i].split("*")[1]])
+                        if ($hashTemplate.containskey($template[$i].split("*")[0])) {
+                            if ($f2uOpt[$template[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashTemplate.($template[$i].split("*")[0]) += @($f2uOpt[$template[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    EXISTING
+                                $hashTemplate.($template[$i].split("*")[0]) += @($template[$i].split("*")[1])
+                            }
                         }
-                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
-                            $hashTemplate.($template[$i].split("*")[0]) = @($template[$i].split("*")[1])
-                        }
-                        elseif (($f2uSku[$template[$i].split("*")[0]]) -and (!($f2uOpt[$template[$i].split("*")[1]]))) {
-                            $hashTemplate.($f2uSku[$template[$i].split("*")[0]]) = @($template[$i].split("*")[1])
-                        }
-                        elseif ((!($f2uSku[$template[$i].split("*")[0]])) -and ($f2uOpt[$template[$i].split("*")[1]])) {
-                            $hashTemplate.($template[$i].split("*")[0]) = @($f2uOpt[$template[$i].split("*")[1]])
+                        else {
+                            if ($f2uOpt[$template[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashTemplate.($template[$i].split("*")[0]) = @($f2uOpt[$template[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    FRESH!
+                                $hashTemplate.($template[$i].split("*")[0]) = @($template[$i].split("*")[1])
+                            }
                         }
                     }
                 }
@@ -581,8 +565,7 @@ function Set-LACloudLicenseV2 {
                 }
             }
         }
-    } 
-
+    }
     End {
 
     }

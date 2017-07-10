@@ -15,8 +15,7 @@ function Get-UserLicense {
     # Begin Block
     Begin {
 
-        # Friendly 2 Ugly hashtable Lookups
-        $Sku = @{ 
+        $u2fSku = @{ 
             "ATP_ENTERPRISE"                     = "Exchange Online ATP";
             "AX_ENTERPRISE_USER"                 = "AX ENTERPRISE USER";
             "AX_SANDBOX_INSTANCE_TIER2"          = "AX_SANDBOX_INSTANCE_TIER2";
@@ -94,7 +93,7 @@ function Get-UserLicense {
             "YAMMER_ENTERPRISE"                  = "Yammer Enterprise";
             "YAMMER_MIDSIZE"                     = "Yammer Midsize"
         } 
-        $plans = @{
+        $u2fOpt = @{
             "AAD_PREMIUM"                    = "Azure Active Directory Premium Plan 1";
             "AAD_PREMIUM_P2"                 = "Azure Active Directory Premium P2";
             "ADALLOM_S_O365"                 = "Office 365 Advanced Security Management";
@@ -202,10 +201,10 @@ function Get-UserLicense {
         if ($notDisabled) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
-                $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+                $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
                 foreach ($u in $ul.serviceplans) {
                     if ($u.ProvisioningStatus -ne 'Disabled') {
-                        $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                        $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
                         $uLicHash['Status'] = $u.ProvisioningStatus
                         $resultArray += [pscustomobject]$uLicHash   
                     }
@@ -215,10 +214,10 @@ function Get-UserLicense {
         if ($onlyDisabled) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
-                $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+                $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
                 foreach ($u in $ul.serviceplans) {
                     if ($u.ProvisioningStatus -eq 'Disabled') {
-                        $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                        $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
                         $uLicHash['Status'] = $u.ProvisioningStatus
                         $resultArray += [pscustomobject]$uLicHash   
                     }
@@ -228,9 +227,9 @@ function Get-UserLicense {
         else {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
-                $uLicHash['Sku'] = $sku.($ul.skupartnumber)
+                $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
                 foreach ($u in $ul.serviceplans) {
-                    $uLicHash['Option'] = $plans.($u.Serviceplanname)
+                    $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
                     $uLicHash['Status'] = $u.ProvisioningStatus
                     $resultArray += [pscustomobject]$uLicHash
                 }

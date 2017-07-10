@@ -1,4 +1,4 @@
-Function Get-UniqueProducts {
+Function Get-UniqueString {
     param(
         [Parameter(Mandatory = $true)]
         $searchStrings
