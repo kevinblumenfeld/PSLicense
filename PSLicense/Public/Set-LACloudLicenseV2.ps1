@@ -1,15 +1,5 @@
 <#
-.SYNOPSIS
-   Use this tool to license Office 365 with ease.
-
-.DESCRIPTION
-   This tool allows you license one, many or all of your Office 365 users with several methods.
-   
-
-.EXAMPLE
-   Get-LAConnected -Tenant Contoso -AzureADver2
-   Get-AzureADUser -SearchString cloud0 |  Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
-
+.EXTERNALHELP PSLicense-help.xml
 #>
 function Set-LACloudLicenseV2 {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
