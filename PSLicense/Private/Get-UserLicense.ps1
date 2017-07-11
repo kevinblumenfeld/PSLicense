@@ -205,10 +205,20 @@ function Get-UserLicense {
         if ($notDisabled) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
-                $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
+                if ($u2fSku.($ul.skupartnumber)) {
+                    $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
+                }
+                else {
+                    $uLicHash['Sku'] = $ul.skupartnumber
+                }
                 foreach ($u in $ul.serviceplans) {
                     if ($u.ProvisioningStatus -ne 'Disabled') {
-                        $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
+                        if ($u2fOpt.($u.Serviceplanname)) {
+                            $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
+                        }
+                        else {
+                            $uLicHash['Option'] = $u.Serviceplanname
+                        }
                         $uLicHash['Status'] = $u.ProvisioningStatus
                         $resultArray += [pscustomobject]$uLicHash   
                     }
@@ -218,22 +228,42 @@ function Get-UserLicense {
         if ($onlyDisabled) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
-                $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
+                if ($u2fSku.($ul.skupartnumber)) {
+                    $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
+                }
+                else {
+                    $uLicHash['Sku'] = $ul.skupartnumber
+                }
                 foreach ($u in $ul.serviceplans) {
                     if ($u.ProvisioningStatus -eq 'Disabled') {
-                        $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
+                        if ($u2fOpt.($u.Serviceplanname)) {
+                            $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
+                        }
+                        else {
+                            $uLicHash['Option'] = $u.Serviceplanname
+                        }
                         $uLicHash['Status'] = $u.ProvisioningStatus
                         $resultArray += [pscustomobject]$uLicHash   
                     }
                 }
             }  
         }
-       if ($allLicenses) {
+        if ($allLicenses) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}
-                $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
+                if ($u2fSku.($ul.skupartnumber)) {
+                    $uLicHash['Sku'] = $u2fSku.($ul.skupartnumber)
+                }
+                else {
+                    $uLicHash['Sku'] = $ul.skupartnumber
+                }
                 foreach ($u in $ul.serviceplans) {
-                    $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
+                    if ($u2fOpt.($u.Serviceplanname)) {
+                        $uLicHash['Option'] = $u2fOpt.($u.Serviceplanname)
+                    }
+                    else {
+                        $uLicHash['Option'] = $u.Serviceplanname
+                    }
                     $uLicHash['Status'] = $u.ProvisioningStatus
                     $resultArray += [pscustomobject]$uLicHash
                 }
