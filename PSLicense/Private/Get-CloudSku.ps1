@@ -19,6 +19,7 @@ function Get-CloudSku {
             "AX_SELF-SERVE_USER"                 = "AX SELF-SERVE USER";
             "AX_SANDBOX_INSTANCE_TIER2"          = "AX_SANDBOX_INSTANCE_TIER2";
             "AX_TASK_USER"                       = "AX_TASK_USER";
+            "AAD_PREMIUM"                        = "Azure Active Directory Premium P1";
             "RMS_S_ENTERPRISE"                   = "Azure Active Directory Rights Management";
             "RIGHTSMANAGEMENT_ADHOC"             = "Azure Rights Management Services Ad-hoc";
             "CRMPLAN2"                           = "Dynamics CRM Online Plan 2";
@@ -27,6 +28,7 @@ function Get-CloudSku {
             "ENTERPRISEPACK_B_PILOT"             = "ENTERPRISEPACK_B_PILOT";
             "EXCHANGEENTERPRISE_FACULTY"         = "Exch Online Plan 2 for Faculty";
             "EXCHANGE_L_STANDARD"                = "Exchange Online (Plan 1)";
+            "ATP_ENTERPRISE_FACULTY"             = "Exchange Online Advanced Threat Protection";
             "ATP_ENTERPRISE"                     = "Exchange Online ATP";
             "EXCHANGESTANDARD"                   = "Exchange Online Plan 1";
             "EXCHANGE_S_ENTERPRISE"              = "Exchange Online Plan 2 S";
@@ -41,11 +43,15 @@ function Get-CloudSku {
             "POWERAPPS_INDIVIDUAL_USER"          = "Microsoft PowerApps and Logic flows";
             "STREAM"                             = "Microsoft Stream";
             "MICROSOFT_BUSINESS_CENTER"          = "MICROSOFT_BUSINESS_CENTER";
+            "MEE_FACULTY"                        = "Minecraft Education Edition Faculty";
+            "MEE_STUDENT"                        = "Minecraft Education Edition Student";
             "STANDARDWOFFPACK_STUDENT"           = "O365 Education E1 for Students";
             "STANDARDWOFFPACK_IW_FACULTY"        = "O365 Education for Faculty";
             "STANDARDWOFFPACK_IW_STUDENT"        = "O365 Education for Students";
             "STANDARDPACK_STUDENT"               = "Office 365 (Plan A1) for Students";
             "ENTERPRISEPACKLRG"                  = "Office 365 (Plan E3)";
+            "EQUIVIO_ANALYTICS_FACULTY"          = "Office 365 Advanced Compliance for faculty";
+            "STANDARDWOFFPACK_FACULTY"           = "Office 365 Education E1 for Faculty";
             "ENTERPRISEWITHSCAL_FACULTY"         = "Office 365 Education E4 for Faculty";
             "ENTERPRISEWITHSCAL_STUDENT"         = "Office 365 Education E4 for Students";
             "STANDARDPACK"                       = "Office 365 Enterprise E1";
@@ -66,6 +72,7 @@ function Get-CloudSku {
             "LITEPACK_P2"                        = "Office 365 Small Business Premium";
             "WACSHAREPOINTSTD"                   = "Office Online STD";
             "SHAREPOINTWAC"                      = "Office Online";
+            "OFFICESUBSCRIPTION_STUDENT"         = "Office ProPlus Student Benefit";
             "OFFICE_PRO_PLUS_SUBSCRIPTION_SMBIZ" = "Office ProPlus";
             "POWER_BI_INDIVIDUAL_USER"           = "Power BI for Office 365 Individual";
             "POWER_BI_STANDALONE"                = "Power BI for Office 365 Standalone";

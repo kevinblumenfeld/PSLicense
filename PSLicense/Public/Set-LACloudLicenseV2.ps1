@@ -69,6 +69,7 @@ function Set-LACloudLicenseV2 {
             "AX SELF-SERVE USER"                               = "AX_SELF-SERVE_USER";
             "AX_SANDBOX_INSTANCE_TIER2"                        = "AX_SANDBOX_INSTANCE_TIER2";
             "AX_TASK_USER"                                     = "AX_TASK_USER";
+            "Azure Active Directory Premium P1"                = "AAD_PREMIUM";
             "Azure Active Directory Rights Management"         = "RMS_S_ENTERPRISE";
             "Azure Rights Management Services Ad-hoc"          = "RIGHTSMANAGEMENT_ADHOC";
             "Dynamics CRM Online Plan 2"                       = "CRMPLAN2";
@@ -77,6 +78,7 @@ function Set-LACloudLicenseV2 {
             "ENTERPRISEPACK_B_PILOT"                           = "ENTERPRISEPACK_B_PILOT";
             "Exch Online Plan 2 for Faculty"                   = "EXCHANGEENTERPRISE_FACULTY";
             "Exchange Online (Plan 1)"                         = "EXCHANGE_L_STANDARD";
+            "Exchange Online Advanced Threat Protection"       = "ATP_ENTERPRISE_FACULTY";
             "Exchange Online ATP"                              = "ATP_ENTERPRISE";
             "Exchange Online Plan 1"                           = "EXCHANGESTANDARD";
             "Exchange Online Plan 2 S"                         = "EXCHANGE_S_ENTERPRISE";
@@ -91,11 +93,15 @@ function Set-LACloudLicenseV2 {
             "Microsoft PowerApps and Logic flows"              = "POWERAPPS_INDIVIDUAL_USER";
             "Microsoft Stream"                                 = "STREAM";
             "MICROSOFT_BUSINESS_CENTER"                        = "MICROSOFT_BUSINESS_CENTER";
+            "Minecraft Education Edition Faculty"              = "MEE_FACULTY";
+            "Minecraft Education Edition Student"              = "MEE_STUDENT";
             "O365 Education E1 for Students"                   = "STANDARDWOFFPACK_STUDENT";
             "O365 Education for Faculty"                       = "STANDARDWOFFPACK_IW_FACULTY";
             "O365 Education for Students"                      = "STANDARDWOFFPACK_IW_STUDENT";
             "Office 365 (Plan A1) for Students"                = "STANDARDPACK_STUDENT";
             "Office 365 (Plan E3)"                             = "ENTERPRISEPACKLRG";
+            "Office 365 Advanced Compliance for faculty"       = "EQUIVIO_ANALYTICS_FACULTY";
+            "Office 365 Education E1 for Faculty"              = "STANDARDWOFFPACK_FACULTY";
             "Office 365 Education E4 for Faculty"              = "ENTERPRISEWITHSCAL_FACULTY";
             "Office 365 Education E4 for Students"             = "ENTERPRISEWITHSCAL_STUDENT";
             "Office 365 Enterprise E1"                         = "STANDARDPACK";
@@ -116,6 +122,7 @@ function Set-LACloudLicenseV2 {
             "Office 365 Small Business Premium"                = "LITEPACK_P2";
             "Office Online STD"                                = "WACSHAREPOINTSTD";
             "Office Online"                                    = "SHAREPOINTWAC";
+            "Office ProPlus Student Benefit"                   = "OFFICESUBSCRIPTION_STUDENT";
             "Office ProPlus"                                   = "OFFICE_PRO_PLUS_SUBSCRIPTION_SMBIZ";
             "Power BI for Office 365 Individual"               = "POWER_BI_INDIVIDUAL_USER";
             "Power BI for Office 365 Standalone"               = "POWER_BI_STANDALONE";
@@ -178,8 +185,10 @@ function Set-LACloudLicenseV2 {
             "Microsoft Cloud App Security"                                      = "ADALLOM_S_STANDALONE";
             "Microsoft Dynamics CRM Online Additional Storage"                  = "CRMSTORAGE";
             "Microsoft Dynamics Marketing Sales Collaboration"                  = "MDM_SALES_COLLABORATION";
+            "Microsoft Forms (Plan 2)"                                          = "OFFICE_FORMS_PLAN_2";
             "Microsoft Forms (Plan E3)"                                         = "FORMS_PLAN_E3";
             "Microsoft Forms (Plan E5)"                                         = "FORMS_PLAN_E5";
+            "Microsoft Imagine Academy"                                         = "IT_ACADEMY_AD";
             "Microsoft MyAnalytics"                                             = "EXCHANGE_ANALYTICS";
             "Microsoft Office 365 (Plan A1) for Faculty"                        = "STANDARDPACK_FACULTY";
             "Microsoft Office 365 (Plan A1) for Students"                       = "STANDARDPACK_STUDENT";
@@ -191,7 +200,7 @@ function Set-LACloudLicenseV2 {
             "Microsoft Office 365 (Plan G3) for Government"                     = "ENTERPRISEPACK_GOV";
             "Microsoft Office 365 (Plan G4) for Government"                     = "ENTERPRISEWITHSCAL_GOV";
             "Microsoft Office 365 (Plan K1) for Government"                     = "DESKLESSPACK_GOV";
-            "Microsoft Office 365 (Plan K2) for Government"                     = "ESKLESSWOFFPACK_GOV";
+            "Microsoft Office 365 (Plan K2) for Government"                     = "DESKLESSWOFFPACK_GOV";
             "Microsoft Office 365 Exchange Online (Plan 1) only for Government" = "EXCHANGESTANDARD_GOV";
             "Microsoft Office 365 Exchange Online (Plan 2) only for Government" = "EXCHANGEENTERPRISE_GOV";
             "Microsoft Planner"                                                 = "PROJECTWORKMANAGEMENT";
@@ -200,6 +209,7 @@ function Set-LACloudLicenseV2 {
             "Microsoft Stream for O365 E3 SKU"                                  = "STREAM_O365_E3";
             "Microsoft Stream for O365 E5 SKU"                                  = "STREAM_O365_E5";
             "Microsoft Teams"                                                   = "TEAMS1";
+            "Minecraft Education Edition Faculty"                               = "MINECRAFT_EDUCATION_EDITION";
             "Mobile Device Management for Office 365"                           = "INTUNE_O365";
             "Office 365 (Plan P1)"                                              = "LITEPACK";
             "Office 365 Advanced eDiscovery"                                    = "EQUIVIO_ANALYTICS";
@@ -209,12 +219,14 @@ function Set-LACloudLicenseV2 {
             "Office 365 Education for Students"                                 = "STANDARDWOFFPACK_IW_STUDENT";
             "Office 365 ProPlus"                                                = "OFFICESUBSCRIPTION";
             "Office 365 Threat Intelligence"                                    = "THREAT_INTELLIGENCE";
+            "Office Online for Education"                                       = "SHAREPOINTWAC_EDU";
             "Office Online for Government"                                      = "SHAREPOINTWAC_GOV";
             "Office Online"                                                     = "SHAREPOINTWAC";
             "Office ProPlus Student Benefit"                                    = "OFFICESUBSCRIPTION_STUDENT";
             "Office ProPlus"                                                    = "OFFICESUBSCRIPTION_GOV";
             "OneDrive Pack"                                                     = "WACONEDRIVESTANDARD";
             "OneDrive"                                                          = "ONEDRIVESTANDARD";
+            "Power BI (free)"                                                   = "BI_AZURE_P0";
             "Power BI Information Services"                                     = "SQL_IS_SSIM";
             "Power BI Pro"                                                      = "BI_AZURE_P2";
             "Power BI Reporting and Analytics"                                  = "BI_AZURE_P1";
@@ -223,7 +235,9 @@ function Set-LACloudLicenseV2 {
             "Project Lite"                                                      = "PROJECT_ESSENTIALS";
             "Project Online (Plan 1)"                                           = "PROJECTONLINE_PLAN_1";
             "Project Online (Plan 2)"                                           = "PROJECTONLINE_PLAN_2";
+            "Project Online Service for Education"                              = "SHAREPOINT_PROJECT_EDU";
             "Project Pro for Office 365"                                        = "PROJECT_CLIENT_SUBSCRIPTION";
+            "School Data Sync (Plan 1)"                                         = "SCHOOL_DATA_SYNC_P1";
             "SharePoint Online (Plan 1)"                                        = "SHAREPOINTENTERPRISE_MIDMARKET";
             "SharePoint Online (Plan 2) Project"                                = "SHAREPOINT_PROJECT";
             "SharePoint Online (Plan 2)"                                        = "SHAREPOINTENTERPRISE";
@@ -231,6 +245,8 @@ function Set-LACloudLicenseV2 {
             "SharePoint Online Kiosk"                                           = "SHAREPOINTDESKLESS";
             "SharePoint Online Partner Access"                                  = "SHAREPOINTPARTNER";
             "SharePoint Online Storage"                                         = "SHAREPOINTSTORAGE";
+            "SharePoint Plan 1 for EDU"                                         = "SHAREPOINTSTANDARD_EDU";
+            "SharePoint Plan 2 for EDU"                                         = "SHAREPOINTENTERPRISE_EDU";
             "SharePoint Plan 2G"                                                = "SHAREPOINTENTERPRISE_GOV";
             "Skype for Business Cloud PBX"                                      = "MCOEV";
             "Skype for Business Online (Plan 2)"                                = "MCOSTANDARD";
@@ -241,6 +257,7 @@ function Set-LACloudLicenseV2 {
             "Windows 10 Enterprise E3"                                          = "WIN10_PRO_ENT_SUB";
             "Windows Azure Active Directory Rights Management"                  = "RMS_S_ENTERPRISE_GOV";
             "Yammer Enterprise"                                                 = "YAMMER_ENTERPRISE";
+            "Yammer for Academic"                                               = "YAMMER_EDU";
             "Yammer"                                                            = "YAMMER_MIDSIZE"
         }
 
