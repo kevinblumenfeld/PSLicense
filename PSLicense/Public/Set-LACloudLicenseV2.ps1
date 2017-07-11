@@ -4,19 +4,17 @@
 
 .DESCRIPTION
    This tool allows you license one, many or all of your Office 365 users with several methods.
-   The parameter names
+   
 
 .EXAMPLE
    Get-LAConnected -Tenant Contoso -AzureADver2
-   Get-LACloudLicense
+   Get-AzureADUser -SearchString cloud0 |  Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
 
 #>
 function Set-LACloudLicenseV2 {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param
     (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]] $TheUser,
 
         [Parameter(Mandatory = $false)]
         [switch] $RemoveSkus,
@@ -52,7 +50,10 @@ function Set-LACloudLicenseV2 {
         [switch] $ReportUserLicensesDisabled,        
                 
         [Parameter(Mandatory = $false)]
-        [switch] $DisplayTenantsSkusAndOptions
+        [switch] $DisplayTenantsSkusAndOptions,
+
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string[]] $TheUser
 
     )
 
