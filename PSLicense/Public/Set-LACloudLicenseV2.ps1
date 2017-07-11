@@ -41,6 +41,9 @@ function Set-LACloudLicenseV2 {
                 
         [Parameter(Mandatory = $false)]
         [switch] $DisplayTenantsSkusAndOptions,
+                
+        [Parameter(Mandatory = $false)]
+        [switch] $DisplayTenantsSkusAndOptionsFriendlyNames,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string[]] $TheUser
@@ -288,7 +291,10 @@ function Set-LACloudLicenseV2 {
             [string[]]$template = (. Get-CloudSkuTable -all | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
         }
         if ($DisplayTenantsSkusAndOptions) {
-            [string[]]$allSkusOptions = (. Get-Sku2Service | Out-GridView -Title "All Skus and Options")
+            [string[]]$allSkusOptions = (. Get-Sku2Service -ugly | Out-GridView -Title "All Skus and Options")
+        }
+        if ($DisplayTenantsSkusAndOptionsFriendlyNames) {
+            [string[]]$allSkusOptions = (. Get-Sku2Service -friendly | Out-GridView -Title "All Skus and Options Friendly Names")
         }
   
     }
