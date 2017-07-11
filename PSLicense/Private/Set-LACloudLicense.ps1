@@ -491,7 +491,7 @@
                             }
                         }
                         Write-Host "UPN: $($user.userprincipalname) DISABLED: $DisabledOptions"
-                        # For MDWise
+                        # For contoso
                         # Remove EMS
                         Write-Host "REMOVING EMS"
                         Set-MsolUserLicense -UserPrincipalName $user.userprincipalname -RemoveLicenses $SkuEMS -Verbose -ErrorAction Continue
@@ -502,8 +502,8 @@
                         Write-Output "$($user.userprincipalname) Assigning: $PrimarySku SKU now"
                         $LicenseOptions = New-MsolLicenseOptions -AccountSkuId $PrimarySku -DisabledPlans $DisabledOptions
                         Set-MsolUserLicense -UserPrincipalName $user.userprincipalname -AddLicenses $PrimarySku -LicenseOptions $LicenseOptions -ErrorAction Continue
-                        Write-Output "$($user.userprincipalname) Assigning: mdwise:MICROSOFT_BUSINESS_CENTER"
-                        Set-MsolUserLicense -UserPrincipalName $user.userprincipalname -AddLicenses "mdwise:MICROSOFT_BUSINESS_CENTER"
+                        Write-Output "$($user.userprincipalname) Assigning: contoso:MICROSOFT_BUSINESS_CENTER"
+                        Set-MsolUserLicense -UserPrincipalName $user.userprincipalname -AddLicenses "contoso:MICROSOFT_BUSINESS_CENTER"
                     }        
                 }
                 <#

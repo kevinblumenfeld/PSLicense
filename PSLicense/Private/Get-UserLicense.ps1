@@ -3,7 +3,7 @@ function Get-UserLicense {
     Param
     (
         [Parameter(Mandatory = $true)]
-        $user,
+        $usr,
 
         [Parameter(Mandatory = $false)]
         [switch] $notDisabled,
@@ -201,7 +201,7 @@ function Get-UserLicense {
 
     Process {
         $resultArray = @() 
-        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $user
+        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $usr
         if ($notDisabled) {
             foreach ($ul in $userLicense) {
                 $uLicHash = [ordered]@{}

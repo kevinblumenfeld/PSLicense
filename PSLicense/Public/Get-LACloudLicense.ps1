@@ -1,20 +1,89 @@
-﻿function Get-LACloudLicense { 
-    <#
-.Synopsis
-   Short description
+﻿<#
+.SYNOPSIS
+   Exports all of a Office 365 tenant's licensed users. 
+   Based on a script by Alan Byrne
+
 .DESCRIPTION
-   Long description
+   Exports all of a Office 365 tenant's licensed users. 
+   Detailing which users have which SKU and if the provisioning status of each Option in that SKU
+   There is an Excel Macro with instruction in the comments in the script which divide into tabs, each Sku
+   Once connected to MSOnline, simply run the script (as in the example) and a time/date stamped file 
+   will be created in the current directory.  The excel macro should then be used.  Can be time consuming
+   run against large tenants.
+
 .EXAMPLE
-   Example of how to use this cmdlet
-.EXAMPLE
-   Another example of how to use this cmdlet
+   Get-LAConnected -Tenant Contoso -ExchangeAndMSOL
+   Get-LACloudLicense
+
 #>
+function Get-LACloudLicense { 
+
     Begin {
+
+        <#
+#############################################################        
+Below is Excel Macro to separate each SKU into its own tab
+ALT + F11 / Right-Click Sheet1 > Insert > Module /
+Copy & Paste text below (from Option Explicit to End Sub) /
+ALT + Q / ALT + F8 / Click Run (large tenants take some time)
+#############################################################
+
+
+   Option Explicit
+Sub createsheetabs()
+    Application.ScreenUpdating = False
+    Dim ws As Worksheet, lrow As Long, wk As Worksheet
+    Dim ws1 As Worksheet
+    Dim i As Long
+    Dim rwIn As Long, rwOut As Long
+    Dim EmptyCount As Integer
+    
+    Set ws = ActiveSheet
+    For Each wk In ActiveWorkbook.Worksheets
+        Application.DisplayAlerts = False
+        If wk.Name <> ws.Name Then
+            wk.Delete
+        End If
+        Application.DisplayAlerts = True
+    Next wk
+    lrow = ws.Cells(Cells.Rows.Count, "A").End(xlUp).Row
+    rwIn = 1
+    While rwIn < lrow
+        If InStr(1, ws.Range("C" & rwIn), "AccountSku", vbTextCompare) > 0 And InStr(1, ws.Range("C" & rwIn + 1), "AccountSku", vbTextCompare) = 0 Then
+            'Make sheet
+            Sheets.Add after:=Sheets(Sheets.Count)
+            Set ws1 = ActiveSheet
+            If ws.Range("C" & rwIn + 1) = "" Then
+                EmptyCount = EmptyCount + 1
+                ws1.Name = "Empty" & EmptyCount
+            Else
+                ws1.Name = Left(ws.Range("C" & rwIn + 1), 25)
+            End If
+            ws.Range("C" & rwIn).EntireRow.Copy ws1.Range("a1")
+            rwOut = 1
+            i = 0
+            'Add data
+            While InStr(1, ws.Range("C" & rwIn + 1), "AccountSku", vbTextCompare) = 0 And rwIn < lrow
+                rwIn = rwIn + 1
+                rwOut = rwOut + 1
+                ws.Range("C" & rwIn).EntireRow.Copy ws1.Range("A" & rwOut)
+                i = i + 1
+            Wend
+            ws1.Cells.EntireColumn.AutoFit
+            ws1.Name = ws1.Name & "-" & i
+        End If
+        rwIn = rwIn + 1
+    Wend
+    Application.ScreenUpdating = True
+End Sub
+
+
+#>
 
     }
     Process {
         # Define Hashtables for lookup 
-        $Sku = @{ 
+        $u2fSku = @{ 
             "ATP_ENTERPRISE"                     = "Exchange Online ATP";
             "AX_ENTERPRISE_USER"                 = "AX ENTERPRISE USER";
             "AX_SANDBOX_INSTANCE_TIER2"          = "AX_SANDBOX_INSTANCE_TIER2";
@@ -26,7 +95,7 @@
             "DESKLESSPACK_YAMMER"                = "Office 365 Enterprise K1 with Yammer";
             "DESKLESSWOFFPACK"                   = "Office 365 Enterprise K2";
             "EMS"                                = "Enterprise Mobility + Security E3";
-            "EMSPREMIUM"                         = "EMSPREMIUM";
+            "EMSPREMIUM"                         = "Enterprise Mobility + Security E5";
             "ENTERPRISEPACK"                     = "Office 365 Enterprise E3";
             "ENTERPRISEPACK_B_PILOT"             = "ENTERPRISEPACK_B_PILOT";
             "ENTERPRISEPACK_FACULTY"             = "Office 365 Plan A3 for Faculty";
@@ -38,7 +107,7 @@
             "ENTERPRISEWITHSCAL_FACULTY"         = "Office 365 Education E4 for Faculty";
             "ENTERPRISEWITHSCAL_STUDENT"         = "Office 365 Education E4 for Students";
             "EXCHANGE_L_STANDARD"                = "Exchange Online (Plan 1)";
-            "EXCHANGE_S_ENTERPRISE"              = "Exchange Online Plan 2";
+            "EXCHANGE_S_ENTERPRISE"              = "Exchange Online Plan 2 S";
             "EXCHANGEENTERPRISE"                 = "Exchange Online Plan 2";
             "EXCHANGEENTERPRISE_FACULTY"         = "Exch Online Plan 2 for Faculty";
             "EXCHANGESTANDARD"                   = "Exchange Online Plan 1";
@@ -71,8 +140,8 @@
             "RIGHTSMANAGEMENT_STANDARD_STUDENT"  = "Information Rights Management for Students";
             "RMS_S_ENTERPRISE"                   = "Azure Active Directory Rights Management";
             "SHAREPOINTENTERPRISE"               = "SharePoint Online (Plan 2)";
-            "SHAREPOINTENTERPRISE_MIDMARKET"     = "SharePoint Online (Plan 1)";
-            "SHAREPOINTLITE"                     = "SharePoint Online (Plan 1)";
+            "SHAREPOINTENTERPRISE_MIDMARKET"     = "SharePoint Online (Plan 1) MidMarket";
+            "SHAREPOINTLITE"                     = "SharePoint Online (Plan 1) Lite";
             "SHAREPOINTSTANDARD"                 = "SharePoint Online Plan 1";
             "SHAREPOINTWAC"                      = "Office Online";
             "SPE_E3"                             = "Secure Productive Enterprise E3";
@@ -88,7 +157,7 @@
             "STANDARDWOFFPACKPACK_STUDENT"       = "Office 365 Plan A2 for Students";
             "STREAM"                             = "Microsoft Stream";
             "VISIOCLIENT"                        = "Visio Pro for Office 365";
-            "WACSHAREPOINTSTD"                   = "Office Online";
+            "WACSHAREPOINTSTD"                   = "Office Online STD";
             "YAMMER_ENTERPRISE"                  = "Yammer Enterprise";
             "YAMMER_MIDSIZE"                     = "Yammer Midsize"
         } 
@@ -110,24 +179,32 @@
          
                 # Build header string 
                 switch -wildcard ($($row.ServicePlan.servicename)) { 
-                    "AAD_PREMIUM" { $thisLicense = "Azure Active Directory Premium"}
+                    "AAD_PREMIUM" { $thisLicense = "Azure Active Directory Premium Plan 1"}
+                    "AAD_PREMIUM_P2" { $thisLicense = "Azure Active Directory Premium P2"}
+                    "ADALLOM_S_O365" { $thisLicense = "Office 365 Advanced Security Management"}
+                    "ADALLOM_S_STANDALONE" { $thisLicense = "Microsoft Cloud App Security"}
+                    "ATP_ENTERPRISE" { $thisLicense = "Exchange Online Advanced Threat Protection"}
                     "BI_AZURE_P1" { $thisLicense = "Power BI Reporting and Analytics"}
+                    "BI_AZURE_P2" { $thisLicense = "Power BI Pro"}
                     "CRMIUR" { $thisLicense = "CRM for Partners"}
                     "CRMSTANDARD" { $thisLicense = "CRM Online"}
                     "CRMSTORAGE" { $thisLicense = "Microsoft Dynamics CRM Online Additional Storage"}
                     "CRMTESTINSTANCE" { $thisLicense = "CRM Test Instance"}
-                    "Deskless" { $thisLicense = "StaffHub"}
+                    "Deskless" { $thisLicense = "Microsoft StaffHub"}
                     "DESKLESSPACK_GOV" { $thisLicense = "Microsoft Office 365 (Plan K1) for Government"}
                     "ENTERPRISEPACK_GOV" { $thisLicense = "Microsoft Office 365 (Plan G3) for Government"}
                     "ENTERPRISEWITHSCAL_GOV" { $thisLicense = "Microsoft Office 365 (Plan G4) for Government"}
                     "EOP_ENTERPRISE" { $thisLicense = "Exchange Online Protection"}
                     "EOP_ENTERPRISE_FACULTY" { $thisLicense = "Exchange Online Protection for Faculty"}
-                    "ESKLESSWOFFPACK_GOV" { $thisLicense = "Microsoft Office 365 (Plan K2) for Government"}
-                    "EXCHANGE_S_ARCHIVE_ADDON_GOV" { $thisLicense = "Exchange Online Archiving"}
+                    "EQUIVIO_ANALYTICS" { $thisLicense = "Office 365 Advanced eDiscovery"}
+                    "DESKLESSWOFFPACK_GOV" { $thisLicense = "Microsoft Office 365 (Plan K2) for Government"}
+                    "EXCHANGE_ANALYTICS" { $thisLicense = "Microsoft MyAnalytics"}
+                    "EXCHANGE_S_ARCHIVE_ADDON_GOV" { $thisLicense = "Exchange Online Archiving Govt"}
                     "EXCHANGE_S_DESKLESS" { $thisLicense = "Exchange Online Kiosk"}
                     "EXCHANGE_S_DESKLESS_GOV" { $thisLicense = "Exchange Kiosk"}
-                    "EXCHANGE_S_ENTERPRISE" { $thisLicense = "Exchange"}
+                    "EXCHANGE_S_ENTERPRISE" { $thisLicense = "Exchange Online (Plan 2) Ent"}
                     "EXCHANGE_S_ENTERPRISE_GOV" { $thisLicense = "Exchange Plan 2G"}
+                    "EXCHANGE_S_FOUNDATION" { $thisLicense = "Exchange Foundation for certain SKUs"}
                     "EXCHANGE_S_STANDARD" { $thisLicense = "Exchange Online (Plan 2)"}
                     "EXCHANGE_S_STANDARD_MIDMARKET" { $thisLicense = "Exchange Online (Plan 1)"}
                     "EXCHANGEARCHIVE" { $thisLicense = "Exchange Online Archiving"}
@@ -136,28 +213,39 @@
                     "EXCHANGESTANDARD_STUDENT" { $thisLicense = "Exchange Online (Plan 1) for Students"}
                     "EXCHANGETELCO" { $thisLicense = "Exchange Online POP"}
                     "FLOW_O365_P2" { $thisLicense = "Flow"}
+                    "FLOW_O365_P3" { $thisLicense = "Flow for Office 365"}
+                    "FORMS_PLAN_E3" { $thisLicense = "Microsoft Forms (Plan E3)"}
+                    "FORMS_PLAN_E5" { $thisLicense = "Microsoft Forms (Plan E5)"}
                     "INTUNE_A" { $thisLicense = "Intune for Office 365"}
+                    "INTUNE_O365" { $thisLicense = "Mobile Device Management for Office 365"}
                     "LITEPACK" { $thisLicense = "Office 365 (Plan P1)"}
-                    "MCOSTANDARD" { $thisLicense = "Skype"}
+                    "LOCKBOX_ENTERPRISE" { $thisLicense = "Customer Lockbox"}
+                    "MCOEV" { $thisLicense = "Skype for Business Cloud PBX"}
+                    "MCOMEETADV" { $thisLicense = "Skype for Business PSTN Conferencing"}
+                    "MCOSTANDARD" { $thisLicense = "Skype for Business Online (Plan 2)"}
                     "MCOSTANDARD_GOV" { $thisLicense = "Lync Plan 2G"}
                     "MCOSTANDARD_MIDMARKET" { $thisLicense = "Lync Online (Plan 1)"}
                     "MCVOICECONF" { $thisLicense = "Lync Online (Plan 3)"}
                     "MDM_SALES_COLLABORATION" { $thisLicense = "Microsoft Dynamics Marketing Sales Collaboration"}
                     "MFA_PREMIUM" { $thisLicense = "Azure Multi-Factor Authentication"}
+                    "MICROSOFT_BUSINESS_CENTER" { $thisLicense = "Microsoft Business Center"}
                     "NBPROFESSIONALFORCRM" { $thisLicense = "Microsoft Social Listening Professional"}
-                    "OFFICESUBSCRIPTION" { $thisLicense = "Office ProPlus"}
+                    "OFFICESUBSCRIPTION" { $thisLicense = "Office 365 ProPlus"}
                     "OFFICESUBSCRIPTION_GOV" { $thisLicense = "Office ProPlus"}
                     "OFFICESUBSCRIPTION_STUDENT" { $thisLicense = "Office ProPlus Student Benefit"}
                     "ONEDRIVESTANDARD" { $thisLicense = "OneDrive"}
                     "POWERAPPS_O365_P2" { $thisLicense = "PowerApps"}
+                    "POWERAPPS_O365_P3" { $thisLicense = "PowerApps for Office 365"}
                     "PROJECT_CLIENT_SUBSCRIPTION" { $thisLicense = "Project Pro for Office 365"}
                     "PROJECT_ESSENTIALS" { $thisLicense = "Project Lite"}
                     "PROJECTONLINE_PLAN_1" { $thisLicense = "Project Online (Plan 1)"}
                     "PROJECTONLINE_PLAN_2" { $thisLicense = "Project Online (Plan 2)"}
-                    "PROJECTWORKMANAGEMENT" { $thisLicense = "Planner"}
-                    "RMS_S_ENTERPRISE" { $thisLicense = "Azure Active Directory Rights Management"}
+                    "PROJECTWORKMANAGEMENT" { $thisLicense = "Microsoft Planner"}
+                    "RMS_S_ENTERPRISE" { $thisLicense = "Azure Rights Management"}
                     "RMS_S_ENTERPRISE_GOV" { $thisLicense = "Windows Azure Active Directory Rights Management"}
-                    "RMS_S_PREMIUM" { $thisLicense = "Azure_Info_Protection_Premium"}
+                    "RMS_S_PREMIUM" { $thisLicense = "Azure Information Protection Plan 1"}
+                    "RMS_S_PREMIUM2" { $thisLicense = "Azure Information Protection Premium P2"}
+                    "SHAREPOINT_PROJECT" { $thisLicense = "SharePoint Online (Plan 2) Project"}
                     "SHAREPOINTDESKLESS" { $thisLicense = "SharePoint Online Kiosk"}
                     "SHAREPOINTDESKLESS_GOV" { $thisLicense = "SharePoint Online Kiosk Gov"}
                     "SHAREPOINTENTERPRISE" { $thisLicense = "SharePoint Online (Plan 2)"}
@@ -178,12 +266,16 @@
                     "STANDARDWOFFPACK_IW_FACULTY" { $thisLicense = "Office 365 Education for Faculty"}
                     "STANDARDWOFFPACK_IW_STUDENT" { $thisLicense = "Office 365 Education for Students"}
                     "STANDARDWOFFPACK_STUDENT" { $thisLicense = "Microsoft Office 365 (Plan A2) for Students"}
+                    "STREAM_O365_E3" { $thisLicense = "Microsoft Stream for O365 E3 SKU"}
+                    "STREAM_O365_E5" { $thisLicense = "Microsoft Stream for O365 E5 SKU"}
                     "SWAY" { $thisLicense = "Sway"}
-                    "TEAMS1" { $thisLicense = "Teams"}
-                    "VISIO_CLIENT_SUBSCRIPTION" { $thisLicense = "Visio Pro for Office 365"}
+                    "TEAMS1" { $thisLicense = "Microsoft Teams"}
+                    "THREAT_INTELLIGENCE" { $thisLicense = "Office 365 Threat Intelligence"}
+                    "VISIO_CLIENT_SUBSCRIPTION" { $thisLicense = "Visio Pro for Office 365 Subscription"}
                     "VISIOCLIENT" { $thisLicense = "Visio Pro for Office 365"}
                     "WACONEDRIVESTANDARD" { $thisLicense = "OneDrive Pack"}
-                    "YAMMER_ENTERPRISE" { $thisLicense = "Yammer for the Enterprise"}
+                    "WIN10_PRO_ENT_SUB" { $thisLicense = "Windows 10 Enterprise E3"}
+                    "YAMMER_ENTERPRISE" { $thisLicense = "Yammer Enterprise"}
                     "YAMMER_MIDSIZE" { $thisLicense = "Yammer"}
 
                     default { $thisLicense = $row.ServicePlan.servicename } 
@@ -207,7 +299,7 @@
 
                     if ($userSkuId -eq $skuid) {
                         write-host ("Processing " + $user.displayname)
-                        $datastring = ("`"" + $user.displayname + "`"" + "," + $user.userprincipalname + "," + $Sku.Item($userLicenses[$i].AccountSku.SkuPartNumber))
+                        $datastring = ("`"" + $user.displayname + "`"" + "," + $user.userprincipalname + "," + $u2fSku.Item($userLicenses[$i].AccountSku.SkuPartNumber))
 
                         foreach ($row in $($userLicenses[$i].servicestatus)) {
 			

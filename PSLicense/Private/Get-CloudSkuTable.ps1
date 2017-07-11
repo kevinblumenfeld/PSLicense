@@ -12,10 +12,19 @@ function Get-CloudSkuTable {
     Param
     (
         [Parameter(Mandatory = $false)]
-        [switch] $sourceIgnore,
+        [switch] $sIgnore,
+                        
+        [Parameter(Mandatory = $false)]
+        [string[]] $sourceSku,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $destAdd,
         
         [Parameter(Mandatory = $false)]
-        [string] $sourceSku
+        [switch] $all,
+        
+        [Parameter(Mandatory = $false)]
+        [string[]] $destSku
         
     )
 
@@ -204,10 +213,13 @@ function Get-CloudSkuTable {
         }
         
         # Get a list of all Licenses that exist in the tenant 
-        if ($sourceIgnore) {
+        if ($sIgnore) {
             $licenses = Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $sourceSku}
         }
-        else {
+        if ($destAdd) {
+            $licenses = Get-AzureADSubscribedSku | Where {$_.skupartnumber -eq $destSku}
+        }
+        if ($all) {
             $licenses = Get-AzureADSubscribedSku
         }
  

@@ -1,9 +1,22 @@
+<#
+.SYNOPSIS
+   Use this tool to license Office 365 with ease.
+
+.DESCRIPTION
+   This tool allows you license one, many or all of your Office 365 users with several methods.
+   The parameter names
+
+.EXAMPLE
+   Get-LAConnected -Tenant Contoso -AzureADver2
+   Get-LACloudLicense
+
+#>
 function Set-LACloudLicenseV2 {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param
     (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]] $pipelineUser,
+        [string[]] $TheUser,
 
         [Parameter(Mandatory = $false)]
         [switch] $RemoveSkus,
@@ -18,29 +31,29 @@ function Set-LACloudLicenseV2 {
         [switch] $AddOptions,
 
         [Parameter(Mandatory = $false)]
-        [switch] $SwapSkus,
+        [switch] $MoveOptionsFromOneSkuToAnother,
 
         [Parameter(Mandatory = $false)]
-        [switch] $WhileSwapIgnoreSourceOptions,
+        [switch] $MoveOptionsSourceOptionsToIgnore,
         
         [Parameter(Mandatory = $false)]
-        [switch] $SwapDestAdd,
+        [switch] $MoveOptionsDestOptionsToAdd,
                 
         [Parameter(Mandatory = $false)]
         [switch] $TemplateMode,
 
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicenses,      
+        [switch] $ReportUserLicenses,      
 
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicensesEnabled,        
+        [switch] $ReportUserLicensesEnabled,        
         
         [Parameter(Mandatory = $false)]
-        [switch] $InspectUserLicensesDisabled,        
+        [switch] $ReportUserLicensesDisabled,        
                 
         [Parameter(Mandatory = $false)]
-        [switch] $DisplayAllSkusAndOptions        
-        
+        [switch] $DisplayTenantsSkusAndOptions
+
     )
 
     # Begin Block
@@ -242,46 +255,48 @@ function Set-LACloudLicenseV2 {
             [string[]]$skusToRemove = (. Get-CloudSku | Out-GridView -Title "SKUs to Remove" -PassThru)
         }
         if ($RemoveOptions) {
-            [string[]]$optionsToRemove = (. Get-CloudSkuTable | Out-GridView -Title "Options to Remove" -PassThru)
+            [string[]]$optionsToRemove = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Remove" -PassThru)
         }
         if ($AddSkus) {
             $skusToAdd = (. Get-CloudSku | Out-GridView -Title "SKUs to Add" -PassThru)
         }
         if ($AddOptions) {
-            [string[]]$optionsToAdd = (. Get-CloudSkuTable | Out-GridView -Title "Options to Add" -PassThru)
+            [string[]]$optionsToAdd = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Add" -PassThru)
         } 
-        if ($SwapSkus) {
+        if ($MoveOptionsFromOneSkuToAnother) {
             $swapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
             $swapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
         }
-        if ($WhileSwapIgnoreSourceOptions) {
+        if ($MoveOptionsSourceOptionsToIgnore) {
             if ($f2uSku.$swapSource) {
-                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $f2uSku.$swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sIgnore -sourceSku $f2uSku.$swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
             }
             else {
-                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sourceIgnore -sourceSku $swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sIgnore -sourceSku $swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
             }
             if ($sourceIgnore) {
-                Write-Verbose "SourceIGNORE BEFORE: $SourceIgnore"
                 $sourceIgnore = $sourceIgnore | % {
                     if ($f2uOpt[($_).split("*")[1]]) {
-                        Write-Verbose "IN SI: $($f2uOpt[($_).split("*")[1]])"
                         $f2uOpt[($_).split("*")[1]]
                     }
                     else {
                         ($_).split("*")[1]
                     }
                 } 
-                Write-Verbose "SourceIGNORE AFTER: $SourceIgnore"         
             }
         }
-        if ($SwapDestAdd) {
-            [string[]]$destAdd = (. Get-CloudSkuTable | Out-GridView -Title "DESTINATION Options to Add" -PassThru)
+        if ($MoveOptionsDestOptionsToAdd) {
+            if ($f2uSku.$swapDest) {
+                $destOptAdd = (. Get-CloudSkuTable -destAdd -destSku $f2uSku.$swapDest | Out-GridView -Title "DESTINATION Options to add" -PassThru)
+            }
+            else {
+                $destOptAdd = (. Get-CloudSkuTable -destAdd -destSku $swapDest | Out-GridView -Title "DESTINATION Options to add" -PassThru)
+            }
         }
         if ($TemplateMode) {
-            [string[]]$template = (. Get-CloudSkuTable | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
+            [string[]]$template = (. Get-CloudSkuTable -all | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
         }
-        if ($DisplayAllSkusAndOptions) {
+        if ($DisplayTenantsSkusAndOptions) {
             [string[]]$allSkusOptions = (. Get-Sku2Service | Out-GridView -Title "All Skus and Options")
         }
   
@@ -297,23 +312,22 @@ function Set-LACloudLicenseV2 {
         $disabled = @()
         $sKey = @()
 
-        if ($InspectUserLicenses) {
-            (. Get-UserLicense -user -allLicenses $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
-        }
-        if ($InspectUserLicensesEnabled) {
-            (. Get-UserLicense -notDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
-        }
-        if ($InspectUserLicensesDisabled) {
-            (. Get-UserLicense -onlyDisabled -user $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
-        }
-
         # Set user-specific variables
         $user = Get-AzureADUser -ObjectId $_.userprincipalname
         $userLicense = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
         Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
         
-        # this needs to be in each of the 4 scenarios
-        if ($SwapSkus) {
+        if ($ReportUserLicenses) {
+            (. Get-UserLicense -allLicenses -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+        if ($ReportUserLicensesEnabled) {
+            (. Get-UserLicense -notDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+        if ($ReportUserLicensesDisabled) {
+            (. Get-UserLicense -onlyDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+
+        if ($MoveOptionsFromOneSkuToAnother) {
             if (($userLicense.skupartnumber.Contains($swapSource)) -or ($userLicense.skupartnumber.Contains($f2uSku.$swapSource))) {
                 if (($f2uSku.$swapDest) -and ($f2uSku.$swapSource)) {
                     if (($f2uSku.$swapDest) -eq ($f2uSku.$swapSource)) {
@@ -334,8 +348,19 @@ function Set-LACloudLicenseV2 {
                         }
                         $destarray = Get-UniqueString $dest
                         $sourcearray = Get-UniqueString $source
-                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -contains $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
+                        if ($destOptAdd) {
+                            $doa = $destOptAdd | % {
+                                if ($f2uOpt[($_).split("*")[1]]) {
+                                    $f2uOpt[($_).split("*")[1]]
+                                }
+                                else {
+                                    ($_).split("*")[1]
+                                }
+                            } 
+                            $options2swap += $doa
+                        }
                         $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapDest -options $options2swap
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
@@ -366,8 +391,19 @@ function Set-LACloudLicenseV2 {
                         }
                         $destarray = Get-UniqueString $dest
                         $sourcearray = Get-UniqueString $source
-                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -contains $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
+                        if ($destOptAdd) {
+                            $doa = $destOptAdd | % {
+                                if ($f2uOpt[($_).split("*")[1]]) {
+                                    $f2uOpt[($_).split("*")[1]]
+                                }
+                                else {
+                                    ($_).split("*")[1]
+                                }
+                            } 
+                            $options2swap += $doa
+                        }
                         $licensesToAssign = Set-SkuChange -addTheOptions -skus $swapDest -options $options2swap
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
@@ -398,8 +434,19 @@ function Set-LACloudLicenseV2 {
                         }
                         $destarray = Get-UniqueString $dest
                         $sourcearray = Get-UniqueString $source
-                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -contains $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
+                        if ($destOptAdd) {
+                            $doa = $destOptAdd | % {
+                                if ($f2uOpt[($_).split("*")[1]]) {
+                                    $f2uOpt[($_).split("*")[1]]
+                                }
+                                else {
+                                    ($_).split("*")[1]
+                                }
+                            } 
+                            $options2swap += $doa
+                        }
                         $licensesToAssign = Set-SkuChange -addTheOptions -skus $f2uSku.$swapDest -options $options2swap
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
@@ -430,8 +477,19 @@ function Set-LACloudLicenseV2 {
                         }
                         $destarray = Get-UniqueString $dest
                         $sourcearray = Get-UniqueString $source
-                        $options2swap = $sourcearray.keys | Where {$destarray.keys -match $_}
+                        $options2swap = $sourcearray.keys | Where {$destarray.keys -contains $_}
                         $options2swap = $options2swap | % {$destarray[$_]}
+                        if ($destOptAdd) {
+                            $doa = $destOptAdd | % {
+                                if ($f2uOpt[($_).split("*")[1]]) {
+                                    $f2uOpt[($_).split("*")[1]]
+                                }
+                                else {
+                                    ($_).split("*")[1]
+                                }
+                            } 
+                            $options2swap += $doa
+                        }
                         $licensesToAssign = Set-SkuChange -addTheOptions -skus $swapDest -options $options2swap
                         try {
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
@@ -449,7 +507,6 @@ function Set-LACloudLicenseV2 {
                 Write-Verbose "$($user.UserPrincipalName) does not have source Sku:  $swapSource, no changes will be made to this user"
             }
         }   
-
         # Remove Sku(s)
         if ($skusToRemove) {
             Foreach ($removeSku in $skusToRemove) {
@@ -538,7 +595,7 @@ function Set-LACloudLicenseV2 {
                 }
                 # User does not have Sku so do nothing
                 else {
-                    Write-Verbose "User does not have SKU, no options to remove"
+                    Write-Verbose "User does not have SKU $sKey, no options to remove"
                 }
                   
             }
@@ -725,3 +782,4 @@ function Set-LACloudLicenseV2 {
 
     }
 }
+# .\testq
