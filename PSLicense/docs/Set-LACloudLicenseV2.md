@@ -88,7 +88,7 @@ user01@contoso.com
 user02@contoso.com
 ```
 
-Demonstrates the use of a CSV, who would receive the changes made by the script.  Ensure their is a header named, UserPrincipalName.
+Demonstrates the use of a CSV, who would receive the changes made by the script.  Ensure there is a header named, UserPrincipalName.
 
 ### -------------------------- EXAMPLE 4 --------------------------
 ```
