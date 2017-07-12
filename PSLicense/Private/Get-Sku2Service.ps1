@@ -4,7 +4,10 @@
         [switch] $friendly,
 
         [Parameter(Mandatory = $false)]
-        [switch] $ugly
+        [switch] $ugly,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $both
     )
 
     $u2fSku = @{ 
@@ -220,6 +223,30 @@
                 Else {
                     $sku2service['Service'] = $plan
                 }
+                $sku2service['Remaining'] = ($sku.prepaidunits.enabled - $sku.consumedunits)
+                $sku2service['Total'] = ($sku.prepaidunits.enabled)
+                $resultArray += [psCustomObject]$sku2service
+            }   
+        }
+    }
+    if ($both) {
+        foreach ($sku in $skus) {
+            $sku2service = [ordered]@{}
+            foreach ($plan in $sku.serviceplans.serviceplanname) {
+                if ($u2fSku.($sku.SkuPartNumber)) {
+                    $sku2service['FriendlySku'] = ($u2fSku.($sku.SkuPartNumber))
+                }
+                Else {
+                    $sku2service['FriendlySku'] = $sku.SkuPartNumber
+                }
+                $sku2service['Sku'] = $sku.SkuPartNumber
+                if ($u2fOpt.$plan) {
+                    $sku2service['FriendlyService'] = ($u2fOpt.$plan)
+                }
+                Else {
+                    $sku2service['FriendlyService'] = $plan
+                }
+                $sku2service['Service'] = $plan
                 $sku2service['Remaining'] = ($sku.prepaidunits.enabled - $sku.consumedunits)
                 $sku2service['Total'] = ($sku.prepaidunits.enabled)
                 $resultArray += [psCustomObject]$sku2service

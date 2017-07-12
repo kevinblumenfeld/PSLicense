@@ -44,6 +44,9 @@ function Set-LACloudLicenseV2 {
                 
         [Parameter(Mandatory = $false)]
         [switch] $DisplayTenantsSkusAndOptionsFriendlyNames,
+                
+        [Parameter(Mandatory = $false)]
+        [switch] $DisplayTenantsSkusAndOptionsLookup,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string[]] $TheUser
@@ -312,6 +315,9 @@ function Set-LACloudLicenseV2 {
         }
         if ($DisplayTenantsSkusAndOptionsFriendlyNames) {
             [string[]]$allSkusOptions = (. Get-Sku2Service -friendly | Out-GridView -Title "All Skus and Options Friendly Names")
+        }
+        if ($DisplayTenantsSkusAndOptionsLookup) {
+            [string[]]$allSkusOptions = (. Get-Sku2Service -both | Out-GridView -Title "All Skus and Options Friendly and Ugly Name Lookup")
         }
   
     }
