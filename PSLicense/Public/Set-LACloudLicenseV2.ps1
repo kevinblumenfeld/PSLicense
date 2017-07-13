@@ -58,10 +58,16 @@ function Set-LACloudLicenseV2 {
 
         # Create hashtable from Name to SkuId lookup
         $skuIdHash = @{}
-        Get-AzureADSubscribedSku | Select SkuPartNumber, SkuId | ForEach-Object {
+        $licenses = Get-AzureADSubscribedSku
+        $licenses | Select SkuPartNumber, SkuId | ForEach-Object {
             $skuIdHash[$_.SkuPartNumber] = $_.SkuId
         }
-
+        $planId = @{}
+        foreach ($license in $licenses) {
+            foreach ($row in $($license.ServicePlans)) {
+                $planId[$row.serviceplanId] = $row.serviceplanname
+            }
+        }
         # Assign Tenant and Location to a variable
         $tenant = ((Get-AzureADTenantDetail).verifiedDomains | where {$_.initial -eq "$true"}).name.split(".")[0]
         $location = "US"
@@ -338,13 +344,13 @@ function Set-LACloudLicenseV2 {
         Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
         
         if ($ReportUserLicenses) {
-            (. Get-UserLicense -allLicenses -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+            (Get-UserLicense -allLicenses -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
         if ($ReportUserLicensesEnabled) {
-            (. Get-UserLicense -notDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+            (Get-UserLicense -notDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
         if ($ReportUserLicensesDisabled) {
-            (. Get-UserLicense -onlyDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+            (Get-UserLicense -onlyDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
 
         if ($MoveOptionsFromOneSkuToAnother) {
@@ -714,14 +720,30 @@ function Set-LACloudLicenseV2 {
                     $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname)
                     Write-Verbose "Options from Sku: $sKey to add + options currently enabled: $enabled "
                     $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
-                    Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
+                    Try {
+                        Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                    }
+                    Catch {
+                        $_.exception.Message -match "\bplan\(s\b(.*)\b[\s\S]*?RequestId" | Out-Null
+                        (($matches[0] -split (' ') |? {$_ -like "*-*-*-*"}).trim('RequestId')) | % {$enabled += ($planId[($_).trim()])}
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
+                        Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                    }
                 }
                 # User does not have Sku yet
                 else {
                     $enabled = [pscustomobject]$_.Value
-                    Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
                     $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
-                    Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign  
+                    Try {
+                        Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                    }
+                    Catch {
+                        $_.exception.Message -match "\bplan\(s\b(.*)\b[\s\S]*?RequestId" | Out-Null
+                        (($matches[0] -split (' ') |? {$_ -like "*-*-*-*"}).trim('RequestId')) | % {$enabled += ($planId[($_).trim()])}
+                        $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
+                    }
+                    Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                    Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
                 }
             }
         }
@@ -802,4 +824,3 @@ function Set-LACloudLicenseV2 {
 
     }
 }
-# .\testq
