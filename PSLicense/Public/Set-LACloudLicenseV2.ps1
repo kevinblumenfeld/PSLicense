@@ -10,10 +10,10 @@ function Set-LACloudLicenseV2 {
         [switch] $RemoveSkus,
         
         [Parameter(Mandatory = $false)]
-        [switch] $RemoveOptions,
-
-        [Parameter(Mandatory = $false)]
         [switch] $AddSkus,
+        
+        [Parameter(Mandatory = $false)]
+        [switch] $RemoveOptions,
 
         [Parameter(Mandatory = $false)]
         [switch] $AddOptions,
@@ -274,11 +274,11 @@ function Set-LACloudLicenseV2 {
         if ($RemoveSkus) {
             [string[]]$skusToRemove = (. Get-CloudSku | Out-GridView -Title "SKUs to Remove" -PassThru)
         }
-        if ($RemoveOptions) {
-            [string[]]$optionsToRemove = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Remove" -PassThru)
-        }
         if ($AddSkus) {
             $skusToAdd = (. Get-CloudSku | Out-GridView -Title "SKUs to Add" -PassThru)
+        }
+        if ($RemoveOptions) {
+            [string[]]$optionsToRemove = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Remove" -PassThru)
         }
         if ($AddOptions) {
             [string[]]$optionsToAdd = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Add" -PassThru)
@@ -325,7 +325,6 @@ function Set-LACloudLicenseV2 {
         if ($DisplayTenantsSkusAndOptionsLookup) {
             [string[]]$allSkusOptions = (. Get-Sku2Service -both | Out-GridView -Title "All Skus and Options Friendly and Ugly Name Lookup")
         }
-  
     }
 
     Process {
@@ -343,16 +342,248 @@ function Set-LACloudLicenseV2 {
         $userLicense = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
         Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
         
-        if ($ReportUserLicenses) {
-            (Get-UserLicense -allLicenses -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        # Remove Sku(s)
+        if ($skusToRemove) {
+            Foreach ($removeSku in $skusToRemove) {
+                if ($f2uSku.$removeSku) {
+                    if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $removeSkuGroup += $f2uSku.$removeSku 
+                    } 
+                }
+                else {
+                    if ($removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $removeSkuGroup += $removeSku 
+                    } 
+                }
+            }
+            if ($removeSkuGroup) {
+                Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
+                $licensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
+                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+            }
+            Else {
+                Write-Verbose "$($_.userprincipalname) does not have any of the Skus requested for removal"
+            }
         }
-        if ($ReportUserLicensesEnabled) {
-            (Get-UserLicense -notDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        # Add Sku(s).  If user has Sku already, all options will be added        
+        if ($skusToAdd) {
+            Foreach ($addSku in $skusToAdd) {
+                if ($f2uSku.$addSku) {
+                    if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addSkuGroup += $f2uSku.$addSku 
+                    } 
+                    if ($f2uSku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addAlreadySkuGroup += $f2uSku.$addSku
+                    } 
+                }
+                else {
+                    if ($addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addSkuGroup += $addSku 
+                    } 
+                    if ($addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                        $addAlreadySkuGroup += $addSku
+                    } 
+                }
+            }
+            # Add fresh Sku(s)
+            if ($addSkuGroup) {
+                Write-Verbose "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
+                $licensesToAssign = Set-SkuChange -add -skus $addSkuGroup
+                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+            }
+            # Backfill already assigned Sku(s) with any missing options
+            if ($addAlreadySkuGroup) {
+                Write-Verbose "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
+                $licensesToAssign = Set-SkuChange -addAlready -skus $addAlreadySkuGroup
+                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+            }
         }
-        if ($ReportUserLicensesDisabled) {
-            (Get-UserLicense -onlyDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        # Remove Options.  Only if user is assigned Sku.
+        if ($optionsToRemove) {
+            $hashRem = @{}
+            for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
+                if ($optionsToRemove[$i]) {
+                    if ($f2uSku[$optionsToRemove[$i].split("*")[0]]) {
+                        # FRIENDLY SKU TRACT 
+                        if ($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]])) {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += @($optionsToRemove[$i].split("*")[1])
+                            }
+                        }
+                        else {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
+                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($optionsToRemove[$i].split("*")[1])
+                            }
+                        }
+                    }
+                    # UGLY SKU TRACT 
+                    else {
+                        if ($hashRem.containskey($optionsToRemove[$i].split("*")[0])) {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) += @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    EXISTING
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) += @($optionsToRemove[$i].split("*")[1])
+                            }
+                        }
+                        else {
+                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    FRESH!
+                                $hashRem.($optionsToRemove[$i].split("*")[0]) = @($optionsToRemove[$i].split("*")[1])
+                            }
+                        }
+                    }
+                }
+            }
+            $hashRem.GetEnumerator() | ForEach-Object { 
+                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
+                # User already has Sku
+                $sKey = $_.key
+                if ($sKey -in $userLicense.skupartnumber) {
+                    $disabled = $_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | where {$_.provisioningStatus -eq 'Disabled'}).serviceplanname)
+                    $completed = $false
+                    $retry = 0
+                    While ((! $completed) -and ($retry -le 5)) {
+                        Try {
+                            $retry++
+                            $licensesToAssign = Set-SkuChange -removeTheOptions -skus $sKey -options $disabled
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
+                            Write-Verbose "Options from Sku: $sKey to remove + options currently disabled: $disabled "
+                            $completed = $true
+                        }
+                        Catch {
+                            $_.exception.Message -match "\bplan\s+([-0-9a-f]{36})" | Out-Null
+                            $matches[1] -split (' ') | % {$disabled += ($planId[($_).trim()])}
+                        }
+                    }
+                    if (! $completed) {
+                        Write-Verbose "$($user.UserPrincipalName) unable to remove options to Sku: $sKey "
+                    }
+                }
+                # User does not have Sku so do nothing
+                else {
+                    Write-Verbose "User does not have SKU $sKey, no options to remove"
+                }   
+            }
         }
-
+        # Add Option(s). User will be assigned Sku with the options if user has yet to have Sku assigned 
+        if ($optionsToAdd) {
+            $hashAdd = @{}
+            for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
+                if ($optionsToAdd[$i]) {
+                    if ($f2uSku[$optionsToAdd[$i].split("*")[0]]) {
+                        # FRIENDLY SKU TRACT 
+                        if ($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]])) {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += @($optionsToAdd[$i].split("*")[1])
+                            }
+                        }
+                        else {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
+                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($optionsToAdd[$i].split("*")[1])
+                            }
+                        }
+                    }
+                    # UGLY SKU TRACT 
+                    else {
+                        if ($hashAdd.containskey($optionsToAdd[$i].split("*")[0])) {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) += @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    EXISTING
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) += @($optionsToAdd[$i].split("*")[1])
+                            }
+                        }
+                        else {
+                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
+                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
+                            }
+                            else {
+                                #   UGLY SKU  --  UGLY OPTION    FRESH!
+                                $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($optionsToAdd[$i].split("*")[1])
+                            }
+                        }
+                    }
+                }
+            }
+            $hashAdd.GetEnumerator() | ForEach-Object { 
+                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
+                # User already has Sku
+                $sKey = $_.key
+                if ($sKey -in $userLicense.skupartnumber) {
+                    $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname)
+                    $completed = $false
+                    $retry = 0
+                    While ((! $completed) -and ($retry -le 5)) {
+                        Try {
+                            $retry++
+                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                            Write-Verbose "Options from Sku: $sKey to add + options currently enabled: $enabled "
+                            $completed = $true
+                        }
+                        Catch {
+                            $_.exception.Message -match "\bplan\(s\)\s+([-0-9a-f]{36})" | Out-Null
+                            $matches[1] -split (' ') | % {$enabled += ($planId[($_).trim()])}
+                        }
+                    }
+                    if (! $completed) {
+                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
+                    }
+                }
+                # User does not have Sku yet
+                else {
+                    $enabled = [pscustomobject]$_.Value
+                    $completed = $false
+                    $retry = 0
+                    While ((! $completed) -and ($retry -le 5)) {
+                        Try {
+                            $retry++
+                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
+                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
+                            Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
+                            $completed = $true
+                        }
+                        Catch {
+                            $_.exception.Message -match "\bplan\(s\)\s+([-0-9a-f]{36})" | Out-Null
+                            $matches[1] -split (' ') | % {$enabled += ($planId[($_).trim()])}
+                        }
+                    }
+                    if (! $completed) {
+                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
+                    }
+                }
+            }
+        }
         if ($MoveOptionsFromOneSkuToAnother) {
             if (($userLicense.skupartnumber.Contains($swapSource)) -or ($userLicense.skupartnumber.Contains($f2uSku.$swapSource))) {
                 if (($f2uSku.$swapDest) -and ($f2uSku.$swapSource)) {
@@ -582,248 +813,6 @@ function Set-LACloudLicenseV2 {
             else {
                 Write-Verbose "$($user.UserPrincipalName) does not have source Sku:  $($f2uSku.$swapSource), no changes will be made to this user"
             }
-        }   
-        # Remove Sku(s)
-        if ($skusToRemove) {
-            Foreach ($removeSku in $skusToRemove) {
-                if ($f2uSku.$removeSku) {
-                    if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                        $removeSkuGroup += $f2uSku.$removeSku 
-                    } 
-                }
-                else {
-                    if ($removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                        $removeSkuGroup += $removeSku 
-                    } 
-                }
-            }
-            if ($removeSkuGroup) {
-                Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
-                $licensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
-                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-            }
-            Else {
-                Write-Verbose "$($_.userprincipalname) does not have any of the Skus requested for removal"
-            }
-        }
-        # Remove Options.  Only if user is assigned Sku.
-        if ($optionsToRemove) {
-            $hashRem = @{}
-            for ($i = 0; $i -lt $optionsToRemove.count; $i++) {
-                if ($optionsToRemove[$i]) {
-                    if ($f2uSku[$optionsToRemove[$i].split("*")[0]]) {
-                        # FRIENDLY SKU TRACT 
-                        if ($hashRem.containskey($f2uSku[$optionsToRemove[$i].split("*")[0]])) {
-                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
-                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
-                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
-                            }
-                            else {
-                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
-                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) += @($optionsToRemove[$i].split("*")[1])
-                            }
-                        }
-                        else {
-                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
-                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
-                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
-                            }
-                            else {
-                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
-                                $hashRem.($f2uSku[$optionsToRemove[$i].split("*")[0]]) = @($optionsToRemove[$i].split("*")[1])
-                            }
-                        }
-                    }
-                    # UGLY SKU TRACT 
-                    else {
-                        if ($hashRem.containskey($optionsToRemove[$i].split("*")[0])) {
-                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
-                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
-                                $hashRem.($optionsToRemove[$i].split("*")[0]) += @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
-                            }
-                            else {
-                                #   UGLY SKU  --  UGLY OPTION    EXISTING
-                                $hashRem.($optionsToRemove[$i].split("*")[0]) += @($optionsToRemove[$i].split("*")[1])
-                            }
-                        }
-                        else {
-                            if ($f2uOpt[$optionsToRemove[$i].split("*")[1]]) {
-                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
-                                $hashRem.($optionsToRemove[$i].split("*")[0]) = @($f2uOpt[$optionsToRemove[$i].split("*")[1]])
-                            }
-                            else {
-                                #   UGLY SKU  --  UGLY OPTION    FRESH!
-                                $hashRem.($optionsToRemove[$i].split("*")[0]) = @($optionsToRemove[$i].split("*")[1])
-                            }
-                        }
-                    }
-                }
-            }
-            $hashRem.GetEnumerator() | ForEach-Object { 
-                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
-                # User already has Sku
-                $sKey = $_.key
-                if ($sKey -in $userLicense.skupartnumber) {
-                    $disabled = $_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | where {$_.provisioningStatus -eq 'Disabled'}).serviceplanname)
-                    $completed = $false
-                    $retry = 0
-                    While ((! $completed) -and ($retry -le 5)) {
-                        Try {
-                            $retry++
-                            $licensesToAssign = Set-SkuChange -removeTheOptions -skus $sKey -options $disabled
-                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-                            Write-Verbose "Options from Sku: $sKey to remove + options currently disabled: $disabled "
-                            $completed = $true
-                        }
-                        Catch {
-                            $_.exception.Message -match "\bplan\s+([-0-9a-f]{36})" | Out-Null
-                            $matches[1] -split (' ') | % {$disabled += ($planId[($_).trim()])}
-                        }
-                    }
-                    if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to remove options to Sku: $sKey "
-                    }
-                }
-                # User does not have Sku so do nothing
-                else {
-                    Write-Verbose "User does not have SKU $sKey, no options to remove"
-                }   
-            }
-        }
-        # Add Sku(s).  If user has Sku already, all options will be added        
-        if ($skusToAdd) {
-            Foreach ($addSku in $skusToAdd) {
-                if ($f2uSku.$addSku) {
-                    if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                        $addSkuGroup += $f2uSku.$addSku 
-                    } 
-                    if ($f2uSku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                        $addAlreadySkuGroup += $f2uSku.$addSku
-                    } 
-                }
-                else {
-                    if ($addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                        $addSkuGroup += $addSku 
-                    } 
-                    if ($addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
-                        $addAlreadySkuGroup += $addSku
-                    } 
-                }
-            }
-            # Add fresh Sku(s)
-            if ($addSkuGroup) {
-                Write-Verbose "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
-                $licensesToAssign = Set-SkuChange -add -skus $addSkuGroup
-                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-            }
-            # Backfill already assigned Sku(s) with any missing options
-            if ($addAlreadySkuGroup) {
-                Write-Verbose "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
-                $licensesToAssign = Set-SkuChange -addAlready -skus $addAlreadySkuGroup
-                Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-            }
-        }
-        # Add Option(s). User will be assigned Sku with the options if user has yet to have Sku assigned 
-        if ($optionsToAdd) {
-            $hashAdd = @{}
-            for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
-                if ($optionsToAdd[$i]) {
-                    if ($f2uSku[$optionsToAdd[$i].split("*")[0]]) {
-                        # FRIENDLY SKU TRACT 
-                        if ($hashAdd.containskey($f2uSku[$optionsToAdd[$i].split("*")[0]])) {
-                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
-                                #   FRIENDLY SKU  --  FRIENDLY OPTION    EXISTING
-                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
-                            }
-                            else {
-                                #   FRIENDLY SKU  --  UGLY OPTION    EXISTING
-                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) += @($optionsToAdd[$i].split("*")[1])
-                            }
-                        }
-                        else {
-                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
-                                #   FRIENDLY SKU  --  FRIENDLY OPTION    FRESH!
-                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
-                            }
-                            else {
-                                #   FRIENDLY SKU  --  UGLY OPTION    FRESH!
-                                $hashAdd.($f2uSku[$optionsToAdd[$i].split("*")[0]]) = @($optionsToAdd[$i].split("*")[1])
-                            }
-                        }
-                    }
-                    # UGLY SKU TRACT 
-                    else {
-                        if ($hashAdd.containskey($optionsToAdd[$i].split("*")[0])) {
-                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
-                                #   UGLY SKU  --  FRIENDLY OPTION    EXISTING
-                                $hashAdd.($optionsToAdd[$i].split("*")[0]) += @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
-                            }
-                            else {
-                                #   UGLY SKU  --  UGLY OPTION    EXISTING
-                                $hashAdd.($optionsToAdd[$i].split("*")[0]) += @($optionsToAdd[$i].split("*")[1])
-                            }
-                        }
-                        else {
-                            if ($f2uOpt[$optionsToAdd[$i].split("*")[1]]) {
-                                #   UGLY SKU  --  FRIENDLY OPTION    FRESH!
-                                $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($f2uOpt[$optionsToAdd[$i].split("*")[1]])
-                            }
-                            else {
-                                #   UGLY SKU  --  UGLY OPTION    FRESH!
-                                $hashAdd.($optionsToAdd[$i].split("*")[0]) = @($optionsToAdd[$i].split("*")[1])
-                            }
-                        }
-                    }
-                }
-            }
-            $hashAdd.GetEnumerator() | ForEach-Object { 
-                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
-                # User already has Sku
-                $sKey = $_.key
-                if ($sKey -in $userLicense.skupartnumber) {
-                    $enabled = [pscustomobject]$_.Value + ((($userLicense | Where {$_.skupartnumber -contains $sKey}).serviceplans | Where {$_.provisioningstatus -ne 'Disabled'}).serviceplanname)
-                    $completed = $false
-                    $retry = 0
-                    While ((! $completed) -and ($retry -le 5)) {
-                        Try {
-                            $retry++
-                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
-                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            Write-Verbose "Options from Sku: $sKey to add + options currently enabled: $enabled "
-                            $completed = $true
-                        }
-                        Catch {
-                            $_.exception.Message -match "\bplan\(s\)\s+([-0-9a-f]{36})" | Out-Null
-                            $matches[1] -split (' ') | % {$enabled += ($planId[($_).trim()])}
-                        }
-                    }
-                    if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
-                    }
-                }
-                # User does not have Sku yet
-                else {
-                    $enabled = [pscustomobject]$_.Value
-                    $completed = $false
-                    $retry = 0
-                    While ((! $completed) -and ($retry -le 5)) {
-                        Try {
-                            $retry++
-                            $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
-                            Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
-                            $completed = $true
-                        }
-                        Catch {
-                            $_.exception.Message -match "\bplan\(s\)\s+([-0-9a-f]{36})" | Out-Null
-                            $matches[1] -split (' ') | % {$enabled += ($planId[($_).trim()])}
-                        }
-                    }
-                    if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
-                    }
-                }
-            }
         }
         # Template mode - applies options to any Skus used in this template - will not respect existing Options (wipes them out)
         if ($template) {
@@ -926,6 +915,15 @@ function Set-LACloudLicenseV2 {
                     }
                 }
             }
+        }
+        if ($ReportUserLicenses) {
+            (Get-UserLicense -allLicenses -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+        if ($ReportUserLicensesEnabled) {
+            (Get-UserLicense -notDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+        }
+        if ($ReportUserLicensesDisabled) {
+            (Get-UserLicense -onlyDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
         }
     }
     End {
