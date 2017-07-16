@@ -29,15 +29,18 @@ Depending on the switch(es), the GUI will contain Skus and/or Options - all spec
 For example, if the person running the script selects the switch "Add Option", they will be presented with each Sku and its corresponding options.
 The person running the script can then control + click to select multiple Options.
 
-Multiple switches can be used simultaneously.  
-For example, the person running the script could choose to remove a Sku, add a different Sku, then add or remove options.
-The order of processing each switch is: Remove Sku, Remove Options, Add Skus, Add Options, Move Options From One Sku to Another, Template Mode.
+If the person running the script wanted to apply a Sku that the end-user did not already have BUT not apply all options in that Sku, use the "Add Option" switch.
+"Add Sku" will add all options in that Sku. 
 
 Template Mode wipes out any other options - other than the options the person running the script chooses.
 This is specific only to the Skus that contain the options chosen in Template Mode.
 For example, if the end-user(s) has 3 Skus: E1, E3 and E5...
 and the person running the script selects only the option "Skype" in the E3 Sku, E1 and E5 will remain unchanged.
 However, the end-user(s) that this script runs against will have only one option under the E1 Sku - Skype.
+
+Multiple switches can be used simultaneously.  
+For example, the person running the script could choose to remove a Sku, add a different Sku, then add or remove options.
+The order of processing each switch is: Remove Sku, Remove Options, Add Skus, Add Options, Move Options From One Sku to Another, Template Mode.
 
 No matter which switch is used, the person running the script will be presented with a GUI(s) for any selections that need to be made.
 
