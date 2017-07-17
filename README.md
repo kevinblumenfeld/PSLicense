@@ -1,4 +1,3 @@
-
 # Set-LACloudLicenseV2
 
 ## SYNOPSIS
@@ -7,7 +6,7 @@ Use this tool to license Office 365 with ease.
 ## SYNTAX
 
 ```
-Set-LACloudLicenseV2 [-RemoveSkus] [-RemoveOptions] [-AddSkus] [-AddOptions] [-MoveOptionsFromOneSkuToAnother]
+Set-LACloudLicenseV2 [-RemoveSkus] [-AddSkus] [-RemoveOptions] [-AddOptions] [-MoveOptionsFromOneSkuToAnother]
  [-MoveOptionsSourceOptionsToIgnore] [-MoveOptionsDestOptionsToAdd] [-TemplateMode] [-ReportUserLicenses]
  [-ReportUserLicensesEnabled] [-ReportUserLicensesDisabled] [-DisplayTenantsSkusAndOptions]
  [-DisplayTenantsSkusAndOptionsFriendlyNames] [-DisplayTenantsSkusAndOptionsLookup] [-TheUser] <String[]>
@@ -17,22 +16,40 @@ Set-LACloudLicenseV2 [-RemoveSkus] [-RemoveOptions] [-AddSkus] [-AddOptions] [-M
 ## DESCRIPTION
 This tool allows you license one, many or all of your Office 365 users with several methods.
 
+**IMPORTANT**
+
+**THIS SCRIPT WILL ADD/REMOVE DEPENDENCIES FOR ANY OPTION SELECTED**
+
+For example, if _Skype for Business Cloud PBX_ is selected to be assigned to a user(s) then _Skype for Business Online_ will also be assigned (if the person running the script doesn't select it.)  This is because _Skype for Business Cloud PBX_ has a dependency on _Skype for Business Online_ thus it will also be assigned.
+
+Conversely, when removing options.
+For example, if the person running the script selects to remove the option _Skype for Business Online_, then the option _Skype for Business Cloud PBX_ would also be unassigned from the user(s).  Again, _Skype for Business Cloud PBX_ depends on _Skype for Business Online_ to be assigned thus the dependency would be automatically unassigned.
+
+While this is a feature and not a bug, it is important that the person running this script is aware.
+
+**THIS SCRIPT WILL ADD/REMOVE DEPENDENCIES FOR ANY OPTION SELECTED**
+
 The person running the script uses the switch(es) provided at runtime to select an action(s).
 The script will then present a GUI (Out-GridView) from which the person running the script will select.
 Depending on the switch(es), the GUI will contain Skus and/or Options - all specific to their Office 365 tenant.
 
-For example, if the person running the script selects the switch "Add Option", they will be presented with each Sku and its corresponding options.
-The person running the script can then control + click to select multiple Options.
+For example, if the person running the script selects the switch "Add Options", they will be presented with each Sku and its corresponding options.
+The person running the script can then control + click to select multiple options.
 
-Multiple switches can be used simultaneously.  
-For example, the person running the script could choose to remove a Sku, add a different Sku, then add or remove options.
-The order of processing each switch is: Remove Sku, Remove Options, Add Skus, Add Options, Move Options From One Sku to Another, Template Mode.
+If the person running the script wanted to apply a Sku that the end-user did not already have BUT not apply all options in that Sku, use the "Add Options" switch.
+"Add Sku" will add all options in that Sku. 
 
 Template Mode wipes out any other options - other than the options the person running the script chooses.
 This is specific only to the Skus that contain the options chosen in Template Mode.
 For example, if the end-user(s) has 3 Skus: E1, E3 and E5...
 and the person running the script selects only the option "Skype" in the E3 Sku, E1 and E5 will remain unchanged.
-However, the end-user(s) that this script runs against will have only one option under the E1 Sku - Skype.
+However, the end-user(s) that this script runs against will have only one option under the E3 Sku - Skype.
+
+Multiple switches can be used simultaneously.  
+For example, the person running the script could choose to remove a Sku, add a different Sku, then add or remove options.
+However, again, if only selected options are desired in a Sku that is to be newly assigned, use the "Add Options" switch (instead of "Add Sku" and "Remove Option").
+When using "Add Sku", the speed of Office 365's provisioning of the Sku is not fast enough to allow the removal of options during the same command.  
+It is more simple to use "Add Options" anyway.   
 
 No matter which switch is used, the person running the script will be presented with a GUI(s) for any selections that need to be made.
 
@@ -166,10 +183,11 @@ Here is an example of a scenario.  The end-users all have 3 Skus E3, E5 & EMS.  
 2. 7 options are chosen for Sku E5
 3. Zero options are chosen for Sku EMS
 
-For each End-User in the upns.csv, the results would be the following:
-1. Sku E3: They will have assigned exactly the 4 options - all the other Sku's options will be disabled
-2. Sku E5: They will have assigned exactly the 7 options - all the other Sku's options will be disabled
+For each End-User in the upns.csv, the result would be the following:
+1. Sku E3: They will have assigned exactly the 4 options** - all the other Sku's options will be disabled
+2. Sku E5: They will have assigned exactly the 7 options** - all the other Sku's options will be disabled
 3. Sku EMS: Will remain unchanged, regardless of what the end-user had previously.
+* ** in addition to any mandatory options
 
 
 # Get-LACloudLicense
