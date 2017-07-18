@@ -11,7 +11,7 @@ function Set-LACloudLicenseV2 {
         
         [Parameter(Mandatory = $false)]
         [switch] $AddSkus,
-        
+
         [Parameter(Mandatory = $false)]
         [switch] $RemoveOptions,
 
@@ -691,7 +691,6 @@ function Set-LACloudLicenseV2 {
                             }
                         }
                         if (! $completed) { 
-                            $licensesToAssign = Set-SkuChange -remove -skus $($f2uSku.$swapSource)
                             Write-Output "Unable to properly add some or all of Options for destination Sku: $swapDest Did not remove Sku: $($f2uSku.$swapSource) "
                             Write-Output "FAILED: $($user.UserPrincipalName) Source: $($f2uSku.$swapSource) Dest: $swapDest Options: $options2swap "
                         }
@@ -747,7 +746,6 @@ function Set-LACloudLicenseV2 {
                             }
                         }
                         if (! $completed) { 
-                            $licensesToAssign = Set-SkuChange -remove -skus $swapSource
                             Write-Output "Unable to properly add some or all of Options for destination Sku: $($f2uSku.$swapDest) Did not remove Sku: $swapSource "
                             Write-Output "FAILED: $($user.UserPrincipalName) Source: $swapSource Dest: $($f2uSku.$swapDest) Options: $options2swap "
                         }
@@ -803,7 +801,6 @@ function Set-LACloudLicenseV2 {
                             }
                         }
                         if (! $completed) { 
-                            $licensesToAssign = Set-SkuChange -remove -skus $swapSource
                             Write-Output "Unable to properly add some or all of Options for destination Sku: $swapDest Did not remove Sku: $swapSource "
                             Write-Output "FAILED: $($user.UserPrincipalName) Source: $swapSource Dest: $swapDest Options: $options2swap "
                         }

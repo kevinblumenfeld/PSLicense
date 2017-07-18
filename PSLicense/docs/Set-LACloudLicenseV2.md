@@ -33,7 +33,10 @@ For example, if the person running the script selects to remove the option _Skyp
 
 While this is a feature and not a bug, it is important that the person running this script is aware.
 
-**THIS SCRIPT WILL ADD/REMOVE DEPENDENCIES FOR ANY OPTION SELECTED**
+**When using the MoveOptionsFromOneSkuToAnother switch the Source Sku will be unassigned from the user(s)**
+If the options successfully migrate to the Destination Sku, the Source Sku will be unassigned from the user(s) - as the goal is to move/migrate the options to the Destination Sku.  For safety sake, the Source Sku will not be removed unless the **matching** options are moved.  Please see EXAMPLE 1 & 2
+**For example, if a user(s) already has the Destination Sku with Yammer assigned and the Source Sku does not have Yammer assigned - in the end, the Destination Sku will not have Yammer. Destination Sku options are not retained**
+If needed, have a look at the 2 switches that compliment MoveOptionsFromOneSkuToAnother: _MoveOptionsSourceOptionsToIgnore_ and _MoveOptionsDestOptionsToAdd_.  Please see EXAMPLE 1 & 2 
 
 The person running the script uses the switch(es) provided at runtime to select an action(s).
 The script will then present a GUI (Out-GridView) from which the person running the script will select.
