@@ -357,12 +357,12 @@ function Set-LACloudLicense {
                 }
             }
             if ($removeSkuGroup) {
-                Write-Verbose "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
+                Write-Output "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
                 $licensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
             Else {
-                Write-Verbose "$($_.userprincipalname) does not have any of the Skus requested for removal"
+                Write-Output "$($_.userprincipalname) does not have any of the Skus requested for removal"
             }
         }
         # Add Sku(s).  If user has Sku already, all options will be added        
@@ -387,13 +387,13 @@ function Set-LACloudLicense {
             }
             # Add fresh Sku(s)
             if ($addSkuGroup) {
-                Write-Verbose "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
+                Write-Output "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
                 $licensesToAssign = Set-SkuChange -add -skus $addSkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
             # Backfill already assigned Sku(s) with any missing options
             if ($addAlreadySkuGroup) {
-                Write-Verbose "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
+                Write-Output "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
                 $licensesToAssign = Set-SkuChange -addAlready -skus $addAlreadySkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
@@ -452,7 +452,7 @@ function Set-LACloudLicense {
                 }
             }
             $hashRem.GetEnumerator() | ForEach-Object { 
-                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
+                Write-Output "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 $sKey = $_.key
                 if ($sKey -in $userLicense.skupartnumber) {
@@ -464,7 +464,7 @@ function Set-LACloudLicense {
                             $retry++
                             $licensesToAssign = Set-SkuChange -removeTheOptions -skus $sKey -options $disabled
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-                            Write-Verbose "Options from Sku: $sKey to remove + options currently disabled: $disabled "
+                            Write-Output "Options from Sku: $sKey to remove + options currently disabled: $disabled "
                             $completed = $true
                         }
                         Catch {
@@ -473,12 +473,12 @@ function Set-LACloudLicense {
                         }
                     }
                     if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to remove options to Sku: $sKey "
+                        Write-Output "$($user.UserPrincipalName) unable to remove options to Sku: $sKey "
                     }
                 }
                 # User does not have Sku so do nothing
                 else {
-                    Write-Verbose "User does not have SKU $sKey, no options to remove"
+                    Write-Output "User does not have SKU $sKey, no options to remove"
                 }   
             }
         }
@@ -536,7 +536,7 @@ function Set-LACloudLicense {
                 }
             }
             $hashAdd.GetEnumerator() | ForEach-Object { 
-                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
+                Write-Output "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 $sKey = $_.key
                 if ($sKey -in $userLicense.skupartnumber) {
@@ -548,7 +548,7 @@ function Set-LACloudLicense {
                             $retry++
                             $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            Write-Verbose "Options from Sku: $sKey to add + options currently enabled: $enabled "
+                            Write-Output "Options from Sku: $sKey to add + options currently enabled: $enabled "
                             $completed = $true
                         }
                         Catch {
@@ -557,7 +557,7 @@ function Set-LACloudLicense {
                         }
                     }
                     if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
+                        Write-Output "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
                     }
                 }
                 # User does not have Sku yet
@@ -570,7 +570,7 @@ function Set-LACloudLicense {
                             $retry++
                             $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
+                            Write-Output "User does not have SKU: $sKey, adding Sku with options: $enabled "
                             $completed = $true
                         }
                         Catch {
@@ -579,7 +579,7 @@ function Set-LACloudLicense {
                         }
                     }
                     if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
+                        Write-Output "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
                     }
                 }
             }
@@ -627,7 +627,7 @@ function Set-LACloudLicense {
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
                                 $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$swapSource
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-                                Write-Verbose "$($user.UserPrincipalName) Source: $($f2uSku.$swapSource) Dest: $($f2uSku.$swapDest) Moved Options: $options2swap "
+                                Write-Output "$($user.UserPrincipalName) Source: $($f2uSku.$swapSource) Dest: $($f2uSku.$swapDest) Moved Options: $options2swap "
                                 $completed = $true
                             }
                             Catch {
@@ -682,7 +682,7 @@ function Set-LACloudLicense {
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
                                 $licensesToAssign = Set-SkuChange -remove -skus $f2uSku.$swapSource
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-                                Write-Verbose "$($user.UserPrincipalName) Source: $($f2uSku.$swapSource) Dest: $swapDest Moved Options: $options2swap "
+                                Write-Output "$($user.UserPrincipalName) Source: $($f2uSku.$swapSource) Dest: $swapDest Moved Options: $options2swap "
                                 $completed = $true
                             }
                             Catch {
@@ -737,7 +737,7 @@ function Set-LACloudLicense {
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
                                 $licensesToAssign = Set-SkuChange -remove -skus $swapSource
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-                                Write-Verbose "$($user.UserPrincipalName) Source: $swapSource Dest: $($f2uSku.$swapDest) Moved Options: $options2swap "
+                                Write-Output "$($user.UserPrincipalName) Source: $swapSource Dest: $($f2uSku.$swapDest) Moved Options: $options2swap "
                                 $completed = $true
                             }
                             Catch {
@@ -792,7 +792,7 @@ function Set-LACloudLicense {
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
                                 $licensesToAssign = Set-SkuChange -remove -skus $swapSource
                                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
-                                Write-Verbose "$($user.UserPrincipalName) Source: $swapSource Dest: $swapDest Moved Options: $options2swap "
+                                Write-Output "$($user.UserPrincipalName) Source: $swapSource Dest: $swapDest Moved Options: $options2swap "
                                 $completed = $true
                             }
                             Catch {
@@ -808,7 +808,7 @@ function Set-LACloudLicense {
                 }
             }
             else {
-                Write-Verbose "$($user.UserPrincipalName) does not have source Sku:  $($f2uSku.$swapSource), no changes will be made to this user"
+                Write-Output "$($user.UserPrincipalName) does not have source Sku:  $($f2uSku.$swapSource), no changes will be made to this user"
             }
         }
         # Template mode - applies options to any Skus used in this template - will not respect existing Options (wipes them out)
@@ -865,7 +865,7 @@ function Set-LACloudLicense {
                 }
             }
             $hashTemplate.GetEnumerator() | ForEach-Object { 
-                Write-Verbose "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
+                Write-Output "$($user.UserPrincipalName) : $($_.key) : $($_.value) "
                 # User already has Sku
                 $sKey = $_.key
                 if ($sKey -in $userLicense.skupartnumber) {
@@ -877,7 +877,7 @@ function Set-LACloudLicense {
                             $retry++
                             $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            Write-Verbose "User has Sku $sKey all options will be disabled except: $enabled "
+                            Write-Output "User has Sku $sKey all options will be disabled except: $enabled "
                             $completed = $true
                         }
                         Catch {
@@ -886,7 +886,7 @@ function Set-LACloudLicense {
                         }
                     }
                     if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
+                        Write-Output "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
                     }
                 }
                 # User does not have Sku yet
@@ -899,7 +899,7 @@ function Set-LACloudLicense {
                             $retry++
                             $licensesToAssign = Set-SkuChange -addTheOptions -skus $sKey -options $enabled
                             Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign -ErrorAction Stop
-                            Write-Verbose "User does not have SKU: $sKey, adding Sku with options: $enabled "
+                            Write-Output "User does not have SKU: $sKey, adding Sku with options: $enabled "
                             $completed = $true
                         }
                         Catch {
@@ -908,7 +908,7 @@ function Set-LACloudLicense {
                         }
                     }
                     if (! $completed) {
-                        Write-Verbose "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
+                        Write-Output "$($user.UserPrincipalName) unable to apply options to Sku: $sKey "
                     }
                 }
             }
