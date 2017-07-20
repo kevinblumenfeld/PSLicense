@@ -61,7 +61,7 @@ Further explanations of the switches are demonstrated in the EXAMPLES below.
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -Verbose
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother 
 ```
 
 Moves **ENABLED** options (Service Plans) from one Sku to another Sku.  
@@ -80,7 +80,7 @@ Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOpt
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd 
 ```
 
 Same as in EXAMPLE 1 but also these "overrides" are available...
@@ -91,7 +91,7 @@ And/Or, the person running the script can choose which options should be added t
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd 
 
 A CSV could look like this
 
@@ -106,7 +106,7 @@ Demonstrates the use of a CSV, who would receive the changes made by the script.
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku -Verbose
+Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku 
 ```
 
 Adds a Sku or multiple Skus with all available options.
@@ -116,7 +116,7 @@ If the end-user already has the Sku, all options will be added to that Sku, if n
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions -Verbose
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions 
 ```
 
 Adds specific options in addition to options that are already in place for each end user.
@@ -127,7 +127,7 @@ The options are chosen via a GUI (Out-GridView). Each options is listed next to 
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku -Verbose
+Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku 
 ```
 
 Removes a Sku or Skus.
@@ -137,7 +137,7 @@ The Sku(s) are chosen via a GUI (Out-GridView)
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions 
 ```
 
 Removes specific options from a Sku or multiple Skus.

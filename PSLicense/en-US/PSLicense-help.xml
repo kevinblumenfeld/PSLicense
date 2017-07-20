@@ -364,7 +364,7 @@ No matter which switch is used, the person running the script will be presented 
 <command:examples><command:example><maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -Verbose</dev:code>
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother</dev:code>
 <dev:remarks><maml:para>Moves ENABLED options (Service Plans) from one Sku to another Sku.
 the person running the script will be presented with 2 GUIs to select the Source Sku and the Destination Sku. All Source Sku options will be moved to their corresponding, same-named option in the Destination Sku.
 </maml:para>
@@ -379,7 +379,7 @@ the person running the script will be presented with 2 GUIs to select the Source
 <command:example><maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose</dev:code>
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd</dev:code>
 <dev:remarks><maml:para>Same as in EXAMPLE 1 but also these "overrides" are available... The person running the script can choose which options in the Source Sku to ignore for the Move of Options. And/Or, the person running the script can choose which options should be added to the destination SKU regardless of the Move of Options.
 </maml:para>
 </dev:remarks>
@@ -387,7 +387,7 @@ Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -Move
 <command:example><maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd 
 
 A CSV could look like this
 
@@ -401,7 +401,7 @@ user02@contoso.com</dev:code>
 <command:example><maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku -Verbose</dev:code>
+Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku</dev:code>
 <dev:remarks><maml:para>Adds a Sku or multiple Skus with all available options. If the end-user already has the Sku, all options will be added to that Sku, if not already.
 </maml:para>
 </dev:remarks>
@@ -409,7 +409,7 @@ Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku -Verbos
 <command:example><maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions -Verbose</dev:code>
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions</dev:code>
 <dev:remarks><maml:para>Adds specific options in addition to options that are already in place for each end user. If the end-user has yet to have the Sku assigned, it will be assigned with the options enabled - that were specified by the person running the script. The options are chosen via a GUI (Out-GridView). Each options is listed next to its corresponding SKU to eliminate any possible confusion.
 </maml:para>
 </dev:remarks>
@@ -417,7 +417,7 @@ Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions -Verbose</
 <command:example><maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku -Verbose</dev:code>
+Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku</dev:code>
 <dev:remarks><maml:para>Removes a Sku or Skus. The Sku(s) are chosen via a GUI (Out-GridView)
 </maml:para>
 </dev:remarks>
@@ -425,7 +425,7 @@ Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku -Ve
 <command:example><maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions -Verbose</dev:code>
+Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions</dev:code>
 <dev:remarks><maml:para>Removes specific options from a Sku or multiple Skus. If the end-user does not have the Sku, no action will be taken Options are presented in pairs, with their respective SKU - to avoid any possible confusion with "which option is associated with which Sku". The Options(s) are chosen via a GUI (Out-GridView)
 </maml:para>
 </dev:remarks>
