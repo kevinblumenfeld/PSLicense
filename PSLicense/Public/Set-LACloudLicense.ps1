@@ -1,7 +1,7 @@
 <#
 .EXTERNALHELP PSLicense-help.xml
 #>
-function Set-LACloudLicenseV2 {
+function Set-LACloudLicense {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
     Param
     (

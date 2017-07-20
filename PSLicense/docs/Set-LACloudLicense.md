@@ -4,7 +4,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-LACloudLicenseV2
+# Set-LACloudLicense
 
 ## SYNOPSIS
 Use this tool to license Office 365 with ease.
@@ -12,7 +12,7 @@ Use this tool to license Office 365 with ease.
 ## SYNTAX
 
 ```
-Set-LACloudLicenseV2 [-RemoveSkus] [-AddSkus] [-RemoveOptions] [-AddOptions] [-MoveOptionsFromOneSkuToAnother]
+Set-LACloudLicense [-RemoveSkus] [-AddSkus] [-RemoveOptions] [-AddOptions] [-MoveOptionsFromOneSkuToAnother]
  [-MoveOptionsSourceOptionsToIgnore] [-MoveOptionsDestOptionsToAdd] [-TemplateMode] [-ReportUserLicenses]
  [-ReportUserLicensesEnabled] [-ReportUserLicensesDisabled] [-DisplayTenantsSkusAndOptions]
  [-DisplayTenantsSkusAndOptionsFriendlyNames] [-DisplayTenantsSkusAndOptionsLookup] [-TheUser] <String[]>
@@ -70,7 +70,7 @@ Further explanations of the switches are demonstrated in the EXAMPLES below.
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -Verbose
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -Verbose
 ```
 
 Moves **ENABLED** options (Service Plans) from one Sku to another Sku.  
@@ -83,13 +83,13 @@ This is the list of what is stripped off currently, (more can be added to Get-Un
 _E3 _E5 _P1 _P2 _P3 _1  _2    2   _GOV    _MIDMARKET  _STUDENT    _FACULTY    _A  _O365
 
 To have a look at the Options use the following command - this will display the option names mentioned above (and corresponding "friendly name")
-Get-AzureADUser -SearchString foo | Set-LACloudLicenseV2 -DisplayTenantsSkusAndOptionsLookup
+Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOptionsLookup
 
 ### -------------------------- EXAMPLE 2 --------------------------
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
 ```
 
 Same as in EXAMPLE 1 but also these "overrides" are available...
@@ -100,7 +100,7 @@ And/Or, the person running the script can choose which options should be added t
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
 
 A CSV could look like this
 
@@ -115,7 +115,7 @@ Demonstrates the use of a CSV, who would receive the changes made by the script.
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicenseV2 -AddSku -Verbose
+Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku -Verbose
 ```
 
 Adds a Sku or multiple Skus with all available options.
@@ -125,7 +125,7 @@ If the end-user already has the Sku, all options will be added to that Sku, if n
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicenseV2 -AddOptions -Verbose
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions -Verbose
 ```
 
 Adds specific options in addition to options that are already in place for each end user.
@@ -136,7 +136,7 @@ The options are chosen via a GUI (Out-GridView). Each options is listed next to 
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicenseV2 -RemoveSku -Verbose
+Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku -Verbose
 ```
 
 Removes a Sku or Skus.
@@ -146,7 +146,7 @@ The Sku(s) are chosen via a GUI (Out-GridView)
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -RemoveOptions -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions -Verbose
 ```
 
 Removes specific options from a Sku or multiple Skus.
@@ -158,9 +158,9 @@ The Options(s) are chosen via a GUI (Out-GridView)
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Filter "JobTitle eq 'CEO'"   | Set-LACloudLicenseV2 -ReportUserLicenses
-Get-AzureADUser -SearchString "John Smith"    | Set-LACloudLicenseV2 -ReportUserLicensesEnabled
-Get-AzureADUser -Department "Human Resources" | Set-LACloudLicenseV2 -ReportUserLicensesDisabled
+Get-AzureADUser -Filter "JobTitle eq 'CEO'"   | Set-LACloudLicense -ReportUserLicenses
+Get-AzureADUser -SearchString "John Smith"    | Set-LACloudLicense -ReportUserLicensesEnabled
+Get-AzureADUser -Department "Human Resources" | Set-LACloudLicense -ReportUserLicensesDisabled
 ```
 
 The 3 commands display the current options licensed to an end-user(s) - 3 different ways respectively.
@@ -172,7 +172,7 @@ The 3 commands display the current options licensed to an end-user(s) - 3 differ
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString foo | Set-LACloudLicenseV2 -DisplayTenantsSkusAndOptionsLookup
+Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOptionsLookup
 ```
 
 This will display the available Office 365 tenant's available Skus and corresponding Options.
@@ -182,7 +182,7 @@ Also, this displays the the total amount of licenses and the total amount that a
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -TemplateMode
+Import-Csv .\upns.csv | Set-LACloudLicense -TemplateMode
 ```
 
 This is meant to level-set the end-users with the same options.
@@ -200,23 +200,8 @@ For each End-User in the upns.csv, the result would be the following:
 
 ## PARAMETERS
 
-### -RemoveSkus
-{{RemoveSkus}}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -RemoveOptions
-{{RemoveOptions}}
+### -AddOptions
+{{AddOptions}}
 
 ```yaml
 Type: SwitchParameter
@@ -245,8 +230,68 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -AddOptions
-{{AddOptions}}
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisplayTenantsSkusAndOptions
+{{DisplayTenantsSkusAndOptions}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisplayTenantsSkusAndOptionsFriendlyNames
+{{DisplayTenantsSkusAndOptionsFriendlyNames}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DisplayTenantsSkusAndOptionsLookup
+{{DisplayTenantsSkusAndOptionsLookup}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MoveOptionsDestOptionsToAdd
+{{MoveOptionsDestOptionsToAdd}}
 
 ```yaml
 Type: SwitchParameter
@@ -290,8 +335,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -MoveOptionsDestOptionsToAdd
-{{MoveOptionsDestOptionsToAdd}}
+### -RemoveOptions
+{{RemoveOptions}}
 
 ```yaml
 Type: SwitchParameter
@@ -305,8 +350,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TemplateMode
-{{TemplateMode}}
+### -RemoveSkus
+{{RemoveSkus}}
 
 ```yaml
 Type: SwitchParameter
@@ -335,21 +380,6 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ReportUserLicensesEnabled
-{{ReportUserLicensesEnabled}}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -ReportUserLicensesDisabled
 {{ReportUserLicensesDisabled}}
 
@@ -365,8 +395,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -DisplayTenantsSkusAndOptions
-{{DisplayTenantsSkusAndOptions}}
+### -ReportUserLicensesEnabled
+{{ReportUserLicensesEnabled}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TemplateMode
+{{TemplateMode}}
 
 ```yaml
 Type: SwitchParameter
@@ -389,7 +434,7 @@ Parameter Sets: (All)
 Aliases: 
 
 Required: True
-Position: 1
+Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -403,51 +448,6 @@ The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DisplayTenantsSkusAndOptionsFriendlyNames
-{{DisplayTenantsSkusAndOptionsFriendlyNames}}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -DisplayTenantsSkusAndOptionsLookup
-{{DisplayTenantsSkusAndOptionsLookup}}
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
 
 Required: False
 Position: Named

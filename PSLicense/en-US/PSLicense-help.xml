@@ -32,9 +32,9 @@
 <command:relatedLinks></command:relatedLinks>
 </command:command>
 <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
-<command:details><command:name>Set-LACloudLicenseV2</command:name>
+<command:details><command:name>Set-LACloudLicense</command:name>
 <command:verb>Set</command:verb>
-<command:noun>LACloudLicenseV2</command:noun>
+<command:noun>LACloudLicense</command:noun>
 <maml:description><maml:para>Use this tool to license Office 365 with ease.
 </maml:para>
 </maml:description>
@@ -61,8 +61,8 @@ No matter which switch is used, the person running the script will be presented 
 <maml:para>Further explanations of the switches are demonstrated in the EXAMPLES below.
 </maml:para>
 </maml:description>
-<command:syntax><command:syntaxItem><maml:name>Set-LACloudLicenseV2</maml:name>
-<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="none"><maml:name>TheUser</maml:name>
+<command:syntax><command:syntaxItem><maml:name>Set-LACloudLicense</maml:name>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="none"><maml:name>TheUser</maml:name>
 <maml:Description><maml:para>{{TheUser}}
 </maml:para>
 </maml:Description>
@@ -70,6 +70,86 @@ No matter which switch is used, the person running the script will be presented 
 <dev:type><maml:name>String[]</maml:name>
 <maml:uri /></dev:type>
 <dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>AddOptions</maml:name>
+<maml:Description><maml:para>{{AddOptions}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>AddSkus</maml:name>
+<maml:Description><maml:para>{{AddSkus}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="cf"><maml:name>Confirm</maml:name>
+<maml:Description><maml:para>Prompts you for confirmation before running the cmdlet.
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptions</maml:name>
+<maml:Description><maml:para>{{DisplayTenantsSkusAndOptions}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsFriendlyNames</maml:name>
+<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsFriendlyNames}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsLookup</maml:name>
+<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsLookup}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsDestOptionsToAdd</maml:name>
+<maml:Description><maml:para>{{MoveOptionsDestOptionsToAdd}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsFromOneSkuToAnother</maml:name>
+<maml:Description><maml:para>{{MoveOptionsFromOneSkuToAnother}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsSourceOptionsToIgnore</maml:name>
+<maml:Description><maml:para>{{MoveOptionsSourceOptionsToIgnore}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveOptions</maml:name>
+<maml:Description><maml:para>{{RemoveOptions}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
 <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveSkus</maml:name>
 <maml:Description><maml:para>{{RemoveSkus}}
@@ -79,72 +159,8 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveOptions</maml:name>
-<maml:Description><maml:para>{{RemoveOptions}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>AddSkus</maml:name>
-<maml:Description><maml:para>{{AddSkus}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>AddOptions</maml:name>
-<maml:Description><maml:para>{{AddOptions}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsFromOneSkuToAnother</maml:name>
-<maml:Description><maml:para>{{MoveOptionsFromOneSkuToAnother}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsSourceOptionsToIgnore</maml:name>
-<maml:Description><maml:para>{{MoveOptionsSourceOptionsToIgnore}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsDestOptionsToAdd</maml:name>
-<maml:Description><maml:para>{{MoveOptionsDestOptionsToAdd}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>TemplateMode</maml:name>
-<maml:Description><maml:para>{{TemplateMode}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
 <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>ReportUserLicenses</maml:name>
 <maml:Description><maml:para>{{ReportUserLicenses}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>ReportUserLicensesEnabled</maml:name>
-<maml:Description><maml:para>{{ReportUserLicensesEnabled}}
 </maml:para>
 </maml:Description>
 <dev:type><maml:name>SwitchParameter</maml:name>
@@ -159,8 +175,16 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptions</maml:name>
-<maml:Description><maml:para>{{DisplayTenantsSkusAndOptions}}
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>ReportUserLicensesEnabled</maml:name>
+<maml:Description><maml:para>{{ReportUserLicensesEnabled}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>TemplateMode</maml:name>
+<maml:Description><maml:para>{{TemplateMode}}
 </maml:para>
 </maml:Description>
 <dev:type><maml:name>SwitchParameter</maml:name>
@@ -175,43 +199,10 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="cf"><maml:name>Confirm</maml:name>
-<maml:Description><maml:para>Prompts you for confirmation before running the cmdlet.
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsFriendlyNames</maml:name>
-<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsFriendlyNames}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsLookup</maml:name>
-<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsLookup}}
-</maml:para>
-</maml:Description>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
 </command:syntaxItem>
 </command:syntax>
-<command:parameters><command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveSkus</maml:name>
-<maml:Description><maml:para>{{RemoveSkus}}
-</maml:para>
-</maml:Description>
-<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveOptions</maml:name>
-<maml:Description><maml:para>{{RemoveOptions}}
+<command:parameters><command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>AddOptions</maml:name>
+<maml:Description><maml:para>{{AddOptions}}
 </maml:para>
 </maml:Description>
 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -228,8 +219,44 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>AddOptions</maml:name>
-<maml:Description><maml:para>{{AddOptions}}
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="cf"><maml:name>Confirm</maml:name>
+<maml:Description><maml:para>Prompts you for confirmation before running the cmdlet.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptions</maml:name>
+<maml:Description><maml:para>{{DisplayTenantsSkusAndOptions}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsFriendlyNames</maml:name>
+<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsFriendlyNames}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsLookup</maml:name>
+<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsLookup}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsDestOptionsToAdd</maml:name>
+<maml:Description><maml:para>{{MoveOptionsDestOptionsToAdd}}
 </maml:para>
 </maml:Description>
 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -255,8 +282,8 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>MoveOptionsDestOptionsToAdd</maml:name>
-<maml:Description><maml:para>{{MoveOptionsDestOptionsToAdd}}
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveOptions</maml:name>
+<maml:Description><maml:para>{{RemoveOptions}}
 </maml:para>
 </maml:Description>
 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -264,8 +291,8 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>TemplateMode</maml:name>
-<maml:Description><maml:para>{{TemplateMode}}
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>RemoveSkus</maml:name>
+<maml:Description><maml:para>{{RemoveSkus}}
 </maml:para>
 </maml:Description>
 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -282,15 +309,6 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>ReportUserLicensesEnabled</maml:name>
-<maml:Description><maml:para>{{ReportUserLicensesEnabled}}
-</maml:para>
-</maml:Description>
-<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
 <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>ReportUserLicensesDisabled</maml:name>
 <maml:Description><maml:para>{{ReportUserLicensesDisabled}}
 </maml:para>
@@ -300,8 +318,8 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptions</maml:name>
-<maml:Description><maml:para>{{DisplayTenantsSkusAndOptions}}
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>ReportUserLicensesEnabled</maml:name>
+<maml:Description><maml:para>{{ReportUserLicensesEnabled}}
 </maml:para>
 </maml:Description>
 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -309,7 +327,16 @@ No matter which switch is used, the person running the script will be presented 
 <maml:uri /></dev:type>
 <dev:defaultValue>False</dev:defaultValue>
 </command:parameter>
-<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="none"><maml:name>TheUser</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>TemplateMode</maml:name>
+<maml:Description><maml:para>{{TemplateMode}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="0" aliases="none"><maml:name>TheUser</maml:name>
 <maml:Description><maml:para>{{TheUser}}
 </maml:para>
 </maml:Description>
@@ -320,33 +347,6 @@ No matter which switch is used, the person running the script will be presented 
 </command:parameter>
 <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="wi"><maml:name>WhatIf</maml:name>
 <maml:Description><maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.
-</maml:para>
-</maml:Description>
-<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="cf"><maml:name>Confirm</maml:name>
-<maml:Description><maml:para>Prompts you for confirmation before running the cmdlet.
-</maml:para>
-</maml:Description>
-<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsFriendlyNames</maml:name>
-<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsFriendlyNames}}
-</maml:para>
-</maml:Description>
-<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-<dev:type><maml:name>SwitchParameter</maml:name>
-<maml:uri /></dev:type>
-<dev:defaultValue>False</dev:defaultValue>
-</command:parameter>
-<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>DisplayTenantsSkusAndOptionsLookup</maml:name>
-<maml:Description><maml:para>{{DisplayTenantsSkusAndOptionsLookup}}
 </maml:para>
 </maml:Description>
 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
@@ -364,7 +364,7 @@ No matter which switch is used, the person running the script will be presented 
 <command:examples><command:example><maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -Verbose</dev:code>
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -Verbose</dev:code>
 <dev:remarks><maml:para>Moves ENABLED options (Service Plans) from one Sku to another Sku.
 the person running the script will be presented with 2 GUIs to select the Source Sku and the Destination Sku. All Source Sku options will be moved to their corresponding, same-named option in the Destination Sku.
 </maml:para>
@@ -372,14 +372,14 @@ the person running the script will be presented with 2 GUIs to select the Source
 </maml:para>
 <maml:para>_E3 _E5 _P1 _P2 _P3 _1  _2    2   _GOV    _MIDMARKET  _STUDENT    _FACULTY    _A  _O365
 </maml:para>
-<maml:para>To have a look at the Options use the following command - this will display the option names mentioned above (and corresponding "friendly name") Get-AzureADUser -SearchString foo | Set-LACloudLicenseV2 -DisplayTenantsSkusAndOptionsLookup
+<maml:para>To have a look at the Options use the following command - this will display the option names mentioned above (and corresponding "friendly name") Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOptionsLookup
 </maml:para>
 </dev:remarks>
 </command:example>
 <command:example><maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose</dev:code>
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose</dev:code>
 <dev:remarks><maml:para>Same as in EXAMPLE 1 but also these "overrides" are available... The person running the script can choose which options in the Source Sku to ignore for the Move of Options. And/Or, the person running the script can choose which options should be added to the destination SKU regardless of the Move of Options.
 </maml:para>
 </dev:remarks>
@@ -387,7 +387,7 @@ Import-Csv .\upns.csv | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -Mo
 <command:example><maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
+Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd -Verbose
 
 A CSV could look like this
 
@@ -401,7 +401,7 @@ user02@contoso.com</dev:code>
 <command:example><maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicenseV2 -AddSku -Verbose</dev:code>
+Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku -Verbose</dev:code>
 <dev:remarks><maml:para>Adds a Sku or multiple Skus with all available options. If the end-user already has the Sku, all options will be added to that Sku, if not already.
 </maml:para>
 </dev:remarks>
@@ -409,7 +409,7 @@ Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicenseV2 -AddSku -Verb
 <command:example><maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicenseV2 -AddOptions -Verbose</dev:code>
+Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions -Verbose</dev:code>
 <dev:remarks><maml:para>Adds specific options in addition to options that are already in place for each end user. If the end-user has yet to have the Sku assigned, it will be assigned with the options enabled - that were specified by the person running the script. The options are chosen via a GUI (Out-GridView). Each options is listed next to its corresponding SKU to eliminate any possible confusion.
 </maml:para>
 </dev:remarks>
@@ -417,7 +417,7 @@ Get-AzureADUser -SearchString cloud0 | Set-LACloudLicenseV2 -AddOptions -Verbose
 <command:example><maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicenseV2 -RemoveSku -Verbose</dev:code>
+Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku -Verbose</dev:code>
 <dev:remarks><maml:para>Removes a Sku or Skus. The Sku(s) are chosen via a GUI (Out-GridView)
 </maml:para>
 </dev:remarks>
@@ -425,7 +425,7 @@ Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicenseV2 -RemoveSku -
 <command:example><maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -RemoveOptions -Verbose</dev:code>
+Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions -Verbose</dev:code>
 <dev:remarks><maml:para>Removes specific options from a Sku or multiple Skus. If the end-user does not have the Sku, no action will be taken Options are presented in pairs, with their respective SKU - to avoid any possible confusion with "which option is associated with which Sku". The Options(s) are chosen via a GUI (Out-GridView)
 </maml:para>
 </dev:remarks>
@@ -433,9 +433,9 @@ Import-Csv .\upns.csv | Set-LACloudLicenseV2 -RemoveOptions -Verbose</dev:code>
 <command:example><maml:title>-------------------------- EXAMPLE 8 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Filter "JobTitle eq 'CEO'"   | Set-LACloudLicenseV2 -ReportUserLicenses
-Get-AzureADUser -SearchString "John Smith"    | Set-LACloudLicenseV2 -ReportUserLicensesEnabled
-Get-AzureADUser -Department "Human Resources" | Set-LACloudLicenseV2 -ReportUserLicensesDisabled</dev:code>
+Get-AzureADUser -Filter "JobTitle eq 'CEO'"   | Set-LACloudLicense -ReportUserLicenses
+Get-AzureADUser -SearchString "John Smith"    | Set-LACloudLicense -ReportUserLicensesEnabled
+Get-AzureADUser -Department "Human Resources" | Set-LACloudLicense -ReportUserLicensesDisabled</dev:code>
 <dev:remarks><maml:para>The 3 commands display the current options licensed to an end-user(s) - 3 different ways respectively. 1. All the end-user(s) Options (organized by Sku) 2. All the end-user(s) Enabled licenses only (organized by Sku) 3. All the end-user(s) Disabled licenses only (organized by Sku)
 </maml:para>
 </dev:remarks>
@@ -443,7 +443,7 @@ Get-AzureADUser -Department "Human Resources" | Set-LACloudLicenseV2 -ReportUser
 <command:example><maml:title>-------------------------- EXAMPLE 9 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString foo | Set-LACloudLicenseV2 -DisplayTenantsSkusAndOptionsLookup</dev:code>
+Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOptionsLookup</dev:code>
 <dev:remarks><maml:para>This will display the available Office 365 tenant's available Skus and corresponding Options. Also, this displays the the total amount of licenses and the total amount that are unassigned (remaining).
 </maml:para>
 </dev:remarks>
@@ -451,7 +451,7 @@ Get-AzureADUser -SearchString foo | Set-LACloudLicenseV2 -DisplayTenantsSkusAndO
 <command:example><maml:title>-------------------------- EXAMPLE 10 --------------------------</maml:title>
 <dev:code>Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicenseV2 -TemplateMode</dev:code>
+Import-Csv .\upns.csv | Set-LACloudLicense -TemplateMode</dev:code>
 <dev:remarks><maml:para>This is meant to level-set the end-users with the same options.
 </maml:para>
 <maml:para>Here is an example of a scenario.  The end-users all have 3 Skus E3, E5 &amp; EMS.  The command listed in this example is executed and The person running the script makes the following selections in the presented GUI:  1. 4 options are chosen for Sku E3  2. 7 options are chosen for Sku E5 3. Zero options are chosen for Sku EMS
