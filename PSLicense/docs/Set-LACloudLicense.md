@@ -68,9 +68,9 @@ Further explanations of the switches are demonstrated in the EXAMPLES below.
 
 ### -------------------------- EXAMPLE 1 --------------------------
 ```
-Get-LAConnected -Tenant Contoso -AzureADver2
+Get-LAConnected -Tenant Contoso -MSOnline -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother
+Get-MsolUser -SearchString cloud01 | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother
 ```
 
 Moves **ENABLED** options (Service Plans) from one Sku to another Sku.  
@@ -89,7 +89,7 @@ Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOpt
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd
+Get-Content .\upns.txt | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd
 ```
 
 Same as in EXAMPLE 1 but also these "overrides" are available...
@@ -100,11 +100,10 @@ And/Or, the person running the script can choose which options should be added t
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd 
+Get-Content .\upns.txt | Set-LACloudLicense -MoveOptionsFromOneSkuToAnother -MoveOptionsSourceOptionsToIgnore -MoveOptionsDestOptionsToAdd 
 
-A CSV could look like this
+The text file would look something like this:
 
-UserPrincipalName
 user01@contoso.com
 user02@contoso.com
 ```
@@ -115,7 +114,7 @@ Demonstrates the use of a CSV, who would receive the changes made by the script.
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -ObjectID "foo@contoso.com" | Set-LACloudLicense -AddSku
+Get-AzureADUser -ObjectID "foo@contoso.com" | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -AddSku
 ```
 
 Adds a Sku or multiple Skus with all available options.
@@ -125,7 +124,7 @@ If the end-user already has the Sku, all options will be added to that Sku, if n
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString cloud0 | Set-LACloudLicense -AddOptions
+Get-AzureADUser -SearchString cloud01 | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -AddOptions
 ```
 
 Adds specific options in addition to options that are already in place for each end user.
@@ -136,7 +135,7 @@ The options are chosen via a GUI (Out-GridView). Each options is listed next to 
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Department 'Human Resources'| Set-LACloudLicense -RemoveSku
+Get-AzureADUser -Department 'Human Resources'| Select -ExpandProperty Userprincipalname | Set-LACloudLicense -RemoveSku
 ```
 
 Removes a Sku or Skus.
@@ -146,7 +145,7 @@ The Sku(s) are chosen via a GUI (Out-GridView)
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -RemoveOptions
+Get-Content .\upns.txt | Set-LACloudLicense -RemoveOptions
 ```
 
 Removes specific options from a Sku or multiple Skus.
@@ -158,9 +157,9 @@ The Options(s) are chosen via a GUI (Out-GridView)
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -Filter "JobTitle eq 'CEO'"   | Set-LACloudLicense -ReportUserLicenses
-Get-AzureADUser -SearchString "John Smith"    | Set-LACloudLicense -ReportUserLicensesEnabled
-Get-AzureADUser -Department "Human Resources" | Set-LACloudLicense -ReportUserLicensesDisabled
+Get-AzureADUser -Filter "JobTitle eq 'CEO'"   | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -ReportUserLicenses
+Get-AzureADUser -SearchString "John Smith"    | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -ReportUserLicensesEnabled
+Get-AzureADUser -Department "Human Resources" | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -ReportUserLicensesDisabled
 ```
 
 The 3 commands display the current options licensed to an end-user(s) - 3 different ways respectively.
@@ -172,7 +171,7 @@ The 3 commands display the current options licensed to an end-user(s) - 3 differ
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Get-AzureADUser -SearchString foo | Set-LACloudLicense -DisplayTenantsSkusAndOptionsLookup
+Get-AzureADUser -SearchString foo | Select -ExpandProperty Userprincipalname | Set-LACloudLicense -DisplayTenantsSkusAndOptionsLookup
 ```
 
 This will display the available Office 365 tenant's available Skus and corresponding Options.
@@ -182,7 +181,7 @@ Also, this displays the the total amount of licenses and the total amount that a
 ```
 Get-LAConnected -Tenant Contoso -AzureADver2
 
-Import-Csv .\upns.csv | Set-LACloudLicense -TemplateMode
+Get-Content .\upns.txt | Set-LACloudLicense -TemplateMode
 ```
 
 This is meant to level-set the end-users with the same options.

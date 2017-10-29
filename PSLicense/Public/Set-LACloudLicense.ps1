@@ -48,8 +48,11 @@ function Set-LACloudLicense {
         [Parameter(Mandatory = $false)]
         [switch] $DisplayTenantsSkusAndOptionsLookup,
 
+        [Parameter(Mandatory = $false)]
+        [string[]] $ExternalOptionsToAdd,
+
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
-        [string[]] $TheUser
+        [string[]] $UserPrincipalName
 
     )
 
@@ -269,65 +272,71 @@ function Set-LACloudLicense {
             "Yammer for Academic"                                               = "YAMMER_EDU";
             "Yammer"                                                            = "YAMMER_MIDSIZE"
         }
+        if (!$ExternalOptionsToAdd) {
 
-        # Based on Runtime switches, Out-GridView(s) are presented for user input
-        if ($RemoveSkus) {
-            [string[]]$skusToRemove = (. Get-CloudSku | Out-GridView -Title "SKUs to Remove" -PassThru)
-        }
-        if ($AddSkus) {
-            $skusToAdd = (. Get-CloudSku | Out-GridView -Title "SKUs to Add" -PassThru)
-        }
-        if ($RemoveOptions) {
-            [string[]]$optionsToRemove = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Remove" -PassThru)
-        }
-        if ($AddOptions) {
-            [string[]]$optionsToAdd = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Add" -PassThru)
-        } 
-        if ($MoveOptionsFromOneSkuToAnother) {
-            $swapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
-            $swapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
-        }
-        if ($MoveOptionsSourceOptionsToIgnore) {
-            if ($f2uSku.$swapSource) {
-                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sIgnore -sourceSku $f2uSku.$swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+            # Based on Runtime switches, Out-GridView(s) are presented for user input
+            if ($RemoveSkus) {
+                [string[]]$skusToRemove = (. Get-CloudSku | Out-GridView -Title "SKUs to Remove" -PassThru)
             }
-            else {
-                [string[]]$sourceIgnore = (. Get-CloudSkuTable -sIgnore -sourceSku $swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+            if ($AddSkus) {
+                $skusToAdd = (. Get-CloudSku | Out-GridView -Title "SKUs to Add" -PassThru)
             }
-            if ($sourceIgnore) {
-                $sourceIgnore = $sourceIgnore | % {
-                    if ($f2uOpt[($_).split("*")[1]]) {
-                        $f2uOpt[($_).split("*")[1]]
-                    }
-                    else {
-                        ($_).split("*")[1]
-                    }
-                } 
+            if ($RemoveOptions) {
+                [string[]]$optionsToRemove = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Remove" -PassThru)
             }
-        }
-        if ($MoveOptionsDestOptionsToAdd) {
-            if ($f2uSku.$swapDest) {
-                $destOptAdd = (. Get-CloudSkuTable -destAdd -destSku $f2uSku.$swapDest | Out-GridView -Title "DESTINATION Options to add" -PassThru)
+            if ($AddOptions) {
+                [string[]]$optionsToAdd = (. Get-CloudSkuTable -all | Out-GridView -Title "Options to Add" -PassThru)
+            } 
+            if ($MoveOptionsFromOneSkuToAnother) {
+                $swapSource = (. Get-CloudSku | Out-GridView -Title "Swap Sku - SOURCE" -PassThru)
+                $swapDest = (. Get-CloudSku | Out-GridView -Title "Swap Sku - DESTINATION" -PassThru)
             }
-            else {
-                $destOptAdd = (. Get-CloudSkuTable -destAdd -destSku $swapDest | Out-GridView -Title "DESTINATION Options to add" -PassThru)
+            if ($MoveOptionsSourceOptionsToIgnore) {
+                if ($f2uSku.$swapSource) {
+                    [string[]]$sourceIgnore = (. Get-CloudSkuTable -sIgnore -sourceSku $f2uSku.$swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                }
+                else {
+                    [string[]]$sourceIgnore = (. Get-CloudSkuTable -sIgnore -sourceSku $swapSource | Out-GridView -Title "SOURCE Options to Ignore" -PassThru)
+                }
+                if ($sourceIgnore) {
+                    $sourceIgnore = $sourceIgnore | % {
+                        if ($f2uOpt[($_).split("*")[1]]) {
+                            $f2uOpt[($_).split("*")[1]]
+                        }
+                        else {
+                            ($_).split("*")[1]
+                        }
+                    } 
+                }
             }
-        }
-        if ($TemplateMode) {
-            [string[]]$template = (. Get-CloudSkuTable -all | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
-        }
-        if ($DisplayTenantsSkusAndOptions) {
-            [string[]]$allSkusOptions = (. Get-Sku2Service -ugly | Out-GridView -Title "All Skus and Options")
-        }
-        if ($DisplayTenantsSkusAndOptionsFriendlyNames) {
-            [string[]]$allSkusOptions = (. Get-Sku2Service -friendly | Out-GridView -Title "All Skus and Options Friendly Names")
-        }
-        if ($DisplayTenantsSkusAndOptionsLookup) {
-            [string[]]$allSkusOptions = (. Get-Sku2Service -both | Out-GridView -Title "All Skus and Options Friendly and Ugly Name Lookup")
+            if ($MoveOptionsDestOptionsToAdd) {
+                if ($f2uSku.$swapDest) {
+                    $destOptAdd = (. Get-CloudSkuTable -destAdd -destSku $f2uSku.$swapDest | Out-GridView -Title "DESTINATION Options to add" -PassThru)
+                }
+                else {
+                    $destOptAdd = (. Get-CloudSkuTable -destAdd -destSku $swapDest | Out-GridView -Title "DESTINATION Options to add" -PassThru)
+                }
+            }
+            if ($TemplateMode) {
+                [string[]]$template = (. Get-CloudSkuTable -all | Out-GridView -Title "Create a Template to Apply - All existing Options will be replaced if Sku is selected here" -PassThru)
+            }
+            if ($DisplayTenantsSkusAndOptions) {
+                [string[]]$allSkusOptions = (. Get-Sku2Service -ugly | Out-GridView -Title "All Skus and Options")
+            }
+            if ($DisplayTenantsSkusAndOptionsFriendlyNames) {
+                [string[]]$allSkusOptions = (. Get-Sku2Service -friendly | Out-GridView -Title "All Skus and Options Friendly Names")
+            }
+            if ($DisplayTenantsSkusAndOptionsLookup) {
+                [string[]]$allSkusOptions = (. Get-Sku2Service -both | Out-GridView -Title "All Skus and Options Friendly and Ugly Name Lookup")
+            }
         }
     }
 
     Process {
+        if ($ExternalOptionsToAdd) {
+            $optionsToAdd = $ExternalOptionsToAdd
+            Start-Sleep -Seconds 240
+        }
 
         # Define Arrays
         $removeSkuGroup = @() 
@@ -338,62 +347,62 @@ function Set-LACloudLicense {
         $sKey = @()
 
         # Set user-specific variables
-        $user = Get-AzureADUser -ObjectId $_.userprincipalname
-        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname
-        Set-AzureADUser -ObjectId $_.userprincipalname -UsageLocation $location
+        $user = Get-AzureADUser -ObjectId $_
+        $userLicense = Get-AzureADUserLicenseDetail -ObjectId $_
+        Set-AzureADUser -ObjectId $_ -UsageLocation $location
         
         # Remove Sku(s)
         if ($skusToRemove) {
             Foreach ($removeSku in $skusToRemove) {
                 if ($f2uSku.$removeSku) {
-                    if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    if ($f2uSku.$removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_).skupartnumber) {
                         $removeSkuGroup += $f2uSku.$removeSku 
                     } 
                 }
                 else {
-                    if ($removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    if ($removeSku -in (Get-AzureADUserLicenseDetail -ObjectId $_).skupartnumber) {
                         $removeSkuGroup += $removeSku 
                     } 
                 }
             }
             if ($removeSkuGroup) {
-                Write-Output "$($_.userprincipalname) has the following Skus, removing these Sku now: $removeSkuGroup "
+                Write-Output "$($_) has the following Skus, removing these Sku now: $removeSkuGroup "
                 $licensesToAssign = Set-SkuChange -remove -skus $removeSkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
             Else {
-                Write-Output "$($_.userprincipalname) does not have any of the Skus requested for removal"
+                Write-Output "$($_) does not have any of the Skus requested for removal"
             }
         }
         # Add Sku(s).  If user has Sku already, all options will be added        
         if ($skusToAdd) {
             Foreach ($addSku in $skusToAdd) {
                 if ($f2uSku.$addSku) {
-                    if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    if ($f2uSku.$addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_).skupartnumber) {
                         $addSkuGroup += $f2uSku.$addSku 
                     } 
-                    if ($f2uSku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    if ($f2uSku.$addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_).skupartnumber) {
                         $addAlreadySkuGroup += $f2uSku.$addSku
                     } 
                 }
                 else {
-                    if ($addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    if ($addSku -notin (Get-AzureADUserLicenseDetail -ObjectId $_).skupartnumber) {
                         $addSkuGroup += $addSku 
                     } 
-                    if ($addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_.userprincipalname).skupartnumber) {
+                    if ($addSku -in (Get-AzureADUserLicenseDetail -ObjectId $_).skupartnumber) {
                         $addAlreadySkuGroup += $addSku
                     } 
                 }
             }
             # Add fresh Sku(s)
             if ($addSkuGroup) {
-                Write-Output "$($_.userprincipalname) does not have the following Skus, adding these Sku now: $addSkuGroup "
+                Write-Output "$($_) does not have the following Skus, adding these Sku now: $addSkuGroup "
                 $licensesToAssign = Set-SkuChange -add -skus $addSkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
             # Backfill already assigned Sku(s) with any missing options
             if ($addAlreadySkuGroup) {
-                Write-Output "$($_.userprincipalname) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
+                Write-Output "$($_) already has the following Skus, adding any options not currently assigned: $addAlreadySkuGroup "
                 $licensesToAssign = Set-SkuChange -addAlready -skus $addAlreadySkuGroup
                 Set-AzureADUserLicense -ObjectId $user.ObjectId -AssignedLicenses $licensesToAssign
             }
@@ -483,7 +492,7 @@ function Set-LACloudLicense {
             }
         }
         # Add Option(s). User will be assigned Sku with the options if user has yet to have Sku assigned 
-        if ($optionsToAdd) {
+        if ($optionsToAdd -or $ExternalOptionsToAdd) {
             $hashAdd = @{}
             for ($i = 0; $i -lt $optionsToAdd.count; $i++) {
                 if ($optionsToAdd[$i]) {
@@ -914,13 +923,13 @@ function Set-LACloudLicense {
             }
         }
         if ($ReportUserLicenses) {
-            (Get-UserLicense -allLicenses -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+            (Get-UserLicense -allLicenses -usr $_ | Out-GridView -Title "User License Summary $($_)")
         }
         if ($ReportUserLicensesEnabled) {
-            (Get-UserLicense -notDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+            (Get-UserLicense -notDisabled -usr $_ | Out-GridView -Title "User License Summary $($_)")
         }
         if ($ReportUserLicensesDisabled) {
-            (Get-UserLicense -onlyDisabled -usr $_.userprincipalname | Out-GridView -Title "User License Summary $($_.UserPrincipalName)")
+            (Get-UserLicense -onlyDisabled -usr $_ | Out-GridView -Title "User License Summary $($_)")
         }
     }
     End {
